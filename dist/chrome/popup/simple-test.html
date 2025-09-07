@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dr. DOM Simple Test</title>
+    <style>
+        body { padding: 20px; width: 400px; }
+        button { padding: 10px; margin: 5px; }
+        #output { border: 1px solid #ccc; padding: 10px; margin-top: 10px; max-height: 400px; overflow-y: auto; }
+        pre { margin: 0; }
+    </style>
+</head>
+<body>
+    <h2>Dr. DOM Test</h2>
+    <button id="testData">Test Data Capture</button>
+    <button id="clearOutput">Clear</button>
+    <div id="output"></div>
+    
+    <script>
+        const output = document.getElementById('output');
+        
+        function log(message, data) {
+            const entry = document.createElement('div');
+            entry.innerHTML = `<strong>${message}</strong>`;
+            if (data) {
+                const pre = document.createElement('pre');
+                pre.textContent = JSON.stringify(data, null, 2);
+                entry.appendChild(pre);
+            }
+            output.appendChild(entry);
+        }
+        
+        document.getElementById('testData').addEventListener('click', async () => {
+            output.innerHTML = '';
+            
+            // Get current tab
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            log('Current tab:', { id: tab.id, url: tab.url });
+            
+            // Test if content script responds
+            try {
+                const response = await chrome.tabs.sendMessage(tab.id, { action: 'ping' });
+                log('Ping response:', response);
+            } catch (e) {
+                log('Ping failed:', { error: e.message });
+            }
+            
+            // Try to get stats
+            try {
+                const stats = await chrome.tabs.sendMessage(tab.id, { action: 'getStats' });
+                log('Stats:', stats);
+            } catch (e) {
+                log('Stats failed:', { error: e.message });
+            }
+            
+            // Check window.__drDOM directly using Chrome Manifest V3 API
+            try {
+                const result = await chrome.scripting.executeScript({
+                    target: { tabId: tab.id },
+                    func: () => {
+                        return window.__drDOM ? { 
+                            requests: window.__drDOM.requests.length, 
+                            ready: window.__drDOM.ready,
+                            errors: window.__drDOM.errors.length,
+                            console: window.__drDOM.console.length
+                        } : null;
+                    }
+                });
+                log('Direct window.__drDOM check:', result[0].result);
+            } catch (e) {
+                log('Direct check failed:', { error: e.message });
+            }
+            
+            // Check if coordinator exists
+            try {
+                const coordResult = await chrome.scripting.executeScript({
+                    target: { tabId: tab.id },
+                    func: () => {
+                        return {
+                            hasCoordinator: typeof window.drDOMCoordinator !== 'undefined',
+                            isActive: window.drDOMCoordinator?.isActive
+                        };
+                    }
+                });
+                log('Coordinator check:', coordResult[0].result);
+            } catch (e) {
+                log('Coordinator check failed:', { error: e.message });
+            }
+        });
+        
+        document.getElementById('clearOutput').addEventListener('click', () => {
+            output.innerHTML = '';
+        });
+    </script>
+</body>
+</html>

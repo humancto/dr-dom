@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dr. DOM - Live Stream</title>
+    <style>
+        body { 
+            padding: 15px; 
+            width: 700px; 
+            font-family: -apple-system, sans-serif;
+            margin: 0;
+            background: #0f172a;
+            color: #e2e8f0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        h2 { 
+            color: #a78bfa;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .live-badge {
+            background: #dc2626;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #1e293b;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #334155;
+        }
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
+            color: #a78bfa;
+            font-variant-numeric: tabular-nums;
+        }
+        .stat-label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+        .live-feed {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            height: 400px;
+            overflow-y: auto;
+            position: relative;
+        }
+        .feed-header {
+            position: sticky;
+            top: 0;
+            background: #1e293b;
+            padding: 10px 15px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
+        }
+        .feed-title {
+            color: #a78bfa;
+            font-weight: 600;
+        }
+        .feed-status {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+        .request-item {
+            padding: 8px 15px;
+            border-bottom: 1px solid #334155;
+            font-size: 12px;
+            font-family: 'Monaco', monospace;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            animation: slideIn 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(-20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        .request-item:hover {
+            background: #334155;
+        }
+        .request-item.new {
+            background: #312e81;
+            animation: highlight 1s ease;
+        }
+        @keyframes highlight {
+            from { background: #4c1d95; }
+            to { background: transparent; }
+        }
+        .method {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+            min-width: 50px;
+            text-align: center;
+            font-size: 10px;
+        }
+        .method.GET { background: #10b981; color: #022c22; }
+        .method.POST { background: #8b5cf6; color: white; }
+        .method.PUT { background: #f59e0b; color: #451a03; }
+        .method.DELETE { background: #ef4444; color: white; }
+        .method.fetch { background: #3b82f6; color: white; }
+        .method.xhr { background: #ec4899; color: white; }
+        .method.resource { background: #6b7280; color: white; }
+        .url {
+            flex: 1;
+            color: #cbd5e1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .status {
+            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+            min-width: 35px;
+            text-align: center;
+        }
+        .status.pending { background: #fbbf24; color: #451a03; }
+        .status.success { background: #10b981; color: #022c22; }
+        .status.error { background: #ef4444; color: white; }
+        .duration {
+            color: #64748b;
+            font-size: 11px;
+            min-width: 60px;
+            text-align: right;
+        }
+        .timestamp {
+            color: #475569;
+            font-size: 11px;
+        }
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .btn {
+            padding: 8px 16px;
+            border: 1px solid #334155;
+            background: #1e293b;
+            color: #cbd5e1;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+        .btn:hover {
+            background: #334155;
+            border-color: #475569;
+        }
+        .btn.active {
+            background: #8b5cf6;
+            color: white;
+            border-color: #8b5cf6;
+        }
+        .speed-indicator {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 11px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>
+            🔍 Dr. DOM
+            <span class="live-badge">LIVE</span>
+        </h2>
+        <div class="speed-indicator">
+            <span id="requestRate">0</span> req/s
+        </div>
+    </div>
+    
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-number" id="totalRequests">0</div>
+            <div class="stat-label">Total</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="pendingRequests">0</div>
+            <div class="stat-label">Pending</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="completedRequests">0</div>
+            <div class="stat-label">Complete</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="errorCount">0</div>
+            <div class="stat-label">Errors</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="avgDuration">0</div>
+            <div class="stat-label">Avg ms</div>
+        </div>
+    </div>
+    
+    <div class="controls">
+        <button class="btn active" id="autoScrollBtn">📜 Auto-scroll</button>
+        <button class="btn" id="clearBtn">🗑️ Clear</button>
+        <button class="btn" id="pauseBtn">⏸️ Pause</button>
+        <button class="btn" id="refreshPageBtn">🔄 Refresh Page</button>
+    </div>
+    
+    <div class="live-feed">
+        <div class="feed-header">
+            <div class="feed-title">📡 Network Activity Stream</div>
+            <div class="feed-status" id="feedStatus">Connecting...</div>
+        </div>
+        <div id="requestsFeed"></div>
+    </div>
+    
+    <script>
+        let autoScroll = true;
+        let isPaused = false;
+        let lastRequestCount = 0;
+        let lastUpdateTime = Date.now();
+        let requestsPerSecond = 0;
+        let seenRequests = new Set();
+        
+        const feedEl = document.getElementById('requestsFeed');
+        const feedStatusEl = document.getElementById('feedStatus');
+        
+        function formatDuration(ms) {
+            if (!ms) return '-';
+            if (ms < 1000) return Math.round(ms) + 'ms';
+            return (ms / 1000).toFixed(1) + 's';
+        }
+        
+        function formatTime(timestamp) {
+            return new Date(timestamp).toLocaleTimeString('en-US', { 
+                hour12: false,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                fractionalSecondDigits: 3
+            });
+        }
+        
+        async function streamData() {
+            if (isPaused) return;
+            
+            try {
+                const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+                if (!tab || tab.url.startsWith('chrome://')) {
+                    feedStatusEl.textContent = 'Navigate to a website to start monitoring';
+                    return;
+                }
+                
+                const domain = new URL(tab.url).hostname;
+                const storageKey = `drDOM_${domain}`;
+                
+                chrome.storage.local.get([storageKey, `${storageKey}_meta`], (result) => {
+                    const data = result[storageKey];
+                    const meta = result[`${storageKey}_meta`];
+                    
+                    if (!data) {
+                        feedStatusEl.textContent = `Waiting for data from ${domain}...`;
+                        return;
+                    }
+                    
+                    // Update status
+                    const isLive = meta?.isCapturing || false;
+                    const lastUpdate = meta?.lastUpdate || data.lastUpdate;
+                    const timeSinceUpdate = Date.now() - lastUpdate;
+                    
+                    if (isLive && timeSinceUpdate < 3000) {
+                        feedStatusEl.innerHTML = `<span style="color: #10b981;">● Live</span> - ${domain}`;
+                    } else {
+                        feedStatusEl.innerHTML = `<span style="color: #fbbf24;">● Idle</span> - Last update ${Math.round(timeSinceUpdate / 1000)}s ago`;
+                    }
+                    
+                    // Update stats
+                    const requests = data.requests || [];
+                    const pending = requests.filter(r => r.status === 'pending').length;
+                    const completed = requests.filter(r => r.completed).length;
+                    const errors = requests.filter(r => r.failed || r.error).length;
+                    
+                    document.getElementById('totalRequests').textContent = requests.length;
+                    document.getElementById('pendingRequests').textContent = pending;
+                    document.getElementById('completedRequests').textContent = completed;
+                    document.getElementById('errorCount').textContent = errors + (data.errors?.length || 0);
+                    
+                    // Calculate average duration
+                    const durations = requests.filter(r => r.duration).map(r => r.duration);
+                    const avgDuration = durations.length > 0 ? 
+                        Math.round(durations.reduce((a, b) => a + b, 0) / durations.length) : 0;
+                    document.getElementById('avgDuration').textContent = avgDuration;
+                    
+                    // Calculate request rate
+                    const now = Date.now();
+                    const timeDiff = (now - lastUpdateTime) / 1000;
+                    const requestDiff = requests.length - lastRequestCount;
+                    requestsPerSecond = timeDiff > 0 ? (requestDiff / timeDiff).toFixed(1) : 0;
+                    document.getElementById('requestRate').textContent = requestsPerSecond;
+                    lastRequestCount = requests.length;
+                    lastUpdateTime = now;
+                    
+                    // Stream new requests to feed
+                    requests.forEach(req => {
+                        if (!seenRequests.has(req.id)) {
+                            seenRequests.add(req.id);
+                            addRequestToFeed(req, true);
+                        } else {
+                            // Update existing request if status changed
+                            updateRequestInFeed(req);
+                        }
+                    });
+                    
+                    // Process live updates if available
+                    if (data.liveUpdates) {
+                        data.liveUpdates.forEach(update => {
+                            if (update.type === 'request' && !seenRequests.has(update.data.id)) {
+                                seenRequests.add(update.data.id);
+                                addRequestToFeed(update.data, true);
+                            }
+                        });
+                    }
+                });
+            } catch (error) {
+                console.error('Stream error:', error);
+                feedStatusEl.textContent = 'Error: ' + error.message;
+            }
+        }
+        
+        function addRequestToFeed(request, isNew = false) {
+            const method = request.method || request.type || 'GET';
+            const status = request.completed ? 'success' : 
+                         request.failed ? 'error' : 'pending';
+            const statusCode = request.status || '';
+            
+            const item = document.createElement('div');
+            item.className = `request-item ${isNew ? 'new' : ''}`;
+            item.id = `req-${request.id}`;
+            item.innerHTML = `
+                <span class="timestamp">${formatTime(request.timestamp)}</span>
+                <span class="method ${method}">${method.toUpperCase()}</span>
+                <span class="url" title="${request.url}">${request.url}</span>
+                <span class="status ${status}">${statusCode || status}</span>
+                <span class="duration">${formatDuration(request.duration)}</span>
+            `;
+            
+            feedEl.insertBefore(item, feedEl.firstChild);
+            
+            // Keep only last 200 requests in view
+            while (feedEl.children.length > 200) {
+                feedEl.removeChild(feedEl.lastChild);
+            }
+            
+            if (autoScroll) {
+                item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+        
+        function updateRequestInFeed(request) {
+            const item = document.getElementById(`req-${request.id}`);
+            if (item && request.completed) {
+                const status = request.failed ? 'error' : 'success';
+                const statusEl = item.querySelector('.status');
+                const durationEl = item.querySelector('.duration');
+                
+                if (statusEl) {
+                    statusEl.className = `status ${status}`;
+                    statusEl.textContent = request.status || status;
+                }
+                if (durationEl) {
+                    durationEl.textContent = formatDuration(request.duration);
+                }
+            }
+        }
+        
+        // Controls
+        document.getElementById('autoScrollBtn').addEventListener('click', (e) => {
+            autoScroll = !autoScroll;
+            e.target.classList.toggle('active', autoScroll);
+        });
+        
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            feedEl.innerHTML = '';
+            seenRequests.clear();
+        });
+        
+        document.getElementById('pauseBtn').addEventListener('click', (e) => {
+            isPaused = !isPaused;
+            e.target.textContent = isPaused ? '▶️ Resume' : '⏸️ Pause';
+            e.target.classList.toggle('active', isPaused);
+        });
+        
+        document.getElementById('refreshPageBtn').addEventListener('click', async () => {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            const domain = new URL(tab.url).hostname;
+            
+            // Clear data for fresh start
+            chrome.storage.local.remove([`drDOM_${domain}`, `drDOM_${domain}_meta`]);
+            
+            // Clear feed
+            feedEl.innerHTML = '';
+            seenRequests.clear();
+            lastRequestCount = 0;
+            
+            // Reload page
+            chrome.tabs.reload(tab.id);
+            feedStatusEl.textContent = 'Page reloading... Waiting for new data...';
+        });
+        
+        // Start streaming
+        streamData();
+        
+        // Update every 100ms for smooth live updates
+        setInterval(streamData, 100);
+    </script>
+</body>
+</html>

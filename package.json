@@ -1,0 +1,44 @@
+{
+  "name": "dr-dom-browser-extension",
+  "version": "1.0.0",
+  "description": "🔍 Dr. DOM - The Fun Way to Understand Any Website! Transform into a web detective with gamified website analysis.",
+  "main": "background/background.js",
+  "scripts": {
+    "build": "node build.js",
+    "dev": "node build.js --dev",
+    "package": "node build.js --package",
+    "clean": "rm -rf dist/",
+    "install-chrome": "echo 'Open Chrome -> Extensions -> Load Unpacked -> Select dist folder'",
+    "install-firefox": "echo 'Open Firefox -> about:debugging -> This Firefox -> Load Temporary Add-on -> Select manifest.json in dist'"
+  },
+  "keywords": [
+    "browser-extension",
+    "dom-inspector",
+    "network-monitor",
+    "web-development",
+    "debugging",
+    "performance",
+    "accessibility",
+    "fun",
+    "gamified",
+    "education"
+  ],
+  "author": "Dr. DOM Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dr-dom/browser-extension"
+  },
+  "bugs": {
+    "url": "https://github.com/dr-dom/browser-extension/issues"
+  },
+  "homepage": "https://dr-dom.dev",
+  "devDependencies": {},
+  "dependencies": {},
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "dr-dom@extension.dev",
+      "strict_min_version": "88.0"
+    }
+  }
+}

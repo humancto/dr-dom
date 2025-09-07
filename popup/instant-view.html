@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dr. DOM - Instant View</title>
+    <style>
+        body { 
+            padding: 20px; 
+            width: 600px; 
+            font-family: -apple-system, sans-serif;
+        }
+        h2 { 
+            color: #667eea; 
+            margin: 0 0 10px 0;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #64748b;
+            text-transform: uppercase;
+        }
+        .data-section {
+            margin: 20px 0;
+        }
+        .data-section h3 {
+            margin: 0 0 10px 0;
+            color: #1e293b;
+        }
+        .request-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+        }
+        .request-item {
+            padding: 10px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 12px;
+        }
+        .request-item:last-child {
+            border-bottom: none;
+        }
+        .method {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+        .url {
+            color: #334155;
+            word-break: break-all;
+        }
+        .no-data {
+            padding: 20px;
+            text-align: center;
+            color: #94a3b8;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <h2>🔍 Dr. DOM - Live Capture</h2>
+    
+    <div id="loading" class="loading">Loading captured data...</div>
+    
+    <div id="content" style="display: none;">
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="requestCount">0</div>
+                <div class="stat-label">Requests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="errorCount">0</div>
+                <div class="stat-label">Errors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="consoleCount">0</div>
+                <div class="stat-label">Console</div>
+            </div>
+        </div>
+        
+        <div class="data-section">
+            <h3>📡 Captured Requests</h3>
+            <div class="request-list" id="requestList">
+                <div class="no-data">No requests captured yet</div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // IMMEDIATELY when popup opens, get the captured data
+        async function showCapturedData() {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            
+            try {
+                // Directly execute script to get the captured data
+                const result = await chrome.scripting.executeScript({
+                    target: { tabId: tab.id },
+                    func: () => {
+                        // Return all the data that was captured during page load
+                        if (window.__drDOM) {
+                            return {
+                                success: true,
+                                data: {
+                                    requests: window.__drDOM.requests || [],
+                                    errors: window.__drDOM.errors || [],
+                                    console: window.__drDOM.console || [],
+                                    startTime: window.__drDOM.startTime,
+                                    ready: window.__drDOM.ready
+                                }
+                            };
+                        }
+                        return { 
+                            success: false, 
+                            message: 'No captured data found' 
+                        };
+                    }
+                });
+                
+                const response = result[0].result;
+                
+                if (response.success) {
+                    displayData(response.data);
+                } else {
+                    showError(response.message);
+                }
+            } catch (error) {
+                showError('Failed to get captured data: ' + error.message);
+            }
+        }
+        
+        function displayData(data) {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('content').style.display = 'block';
+            
+            // Update stats
+            document.getElementById('requestCount').textContent = data.requests.length;
+            document.getElementById('errorCount').textContent = data.errors.length;
+            document.getElementById('consoleCount').textContent = data.console.length;
+            
+            // Show requests
+            const requestList = document.getElementById('requestList');
+            if (data.requests.length > 0) {
+                requestList.innerHTML = data.requests.map(req => `
+                    <div class="request-item">
+                        <span class="method">${req.method || req.type || 'GET'}</span>
+                        <span class="url">${req.url}</span>
+                        ${req.status ? `<span style="float: right; color: ${req.status < 400 ? '#10b981' : '#ef4444'}">${req.status}</span>` : ''}
+                    </div>
+                `).join('');
+            } else {
+                requestList.innerHTML = '<div class="no-data">No requests captured during page load</div>';
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById('loading').innerHTML = `
+                <div style="color: #ef4444;">❌ ${message}</div>
+                <div style="margin-top: 10px; font-size: 12px;">
+                    Make sure you're on a regular website (not chrome:// pages)
+                </div>
+            `;
+        }
+        
+        // Run immediately when popup opens
+        showCapturedData();
+        
+        // Also refresh every second for live updates
+        setInterval(showCapturedData, 1000);
+    </script>
+</body>
+</html>

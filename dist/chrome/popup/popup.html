@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. DOM Inspector</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="popup-container">
+        <!-- Header -->
+        <div class="popup-header">
+            <div class="logo">
+                <div class="logo-icon">🔍</div>
+                <h1>Dr. DOM</h1>
+            </div>
+            <div class="status-indicator" id="statusIndicator">
+                <div class="status-dot"></div>
+                <span>Ready</span>
+            </div>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="errorCount">0</div>
+                <div class="stat-label">Errors</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="requestCount">0</div>
+                <div class="stat-label">Requests</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="performanceScore">--</div>
+                <div class="stat-label">Performance</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="domNodes">0</div>
+                <div class="stat-label">DOM Nodes</div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-section">
+            <button id="inspectBtn" class="action-btn primary">
+                <span class="btn-icon">🔍</span>
+                Start Inspection
+            </button>
+            
+            <div class="button-group">
+                <button id="screenshotBtn" class="action-btn secondary">
+                    <span class="btn-icon">📸</span>
+                    Screenshot
+                </button>
+                
+                <button id="exportBtn" class="action-btn secondary">
+                    <span class="btn-icon">📄</span>
+                    Export Report
+                </button>
+            </div>
+        </div>
+
+        <!-- Feature Toggles -->
+        <div class="features-section">
+            <h3>Monitoring Features</h3>
+            
+            <div class="feature-toggle">
+                <label class="toggle-label">
+                    <input type="checkbox" id="domMonitor" checked>
+                    <span class="toggle-slider"></span>
+                    DOM Monitor
+                </label>
+                <div class="feature-info">Track DOM changes and mutations</div>
+            </div>
+            
+            <div class="feature-toggle">
+                <label class="toggle-label">
+                    <input type="checkbox" id="networkMonitor" checked>
+                    <span class="toggle-slider"></span>
+                    Network Monitor
+                </label>
+                <div class="feature-info">Capture network requests and responses</div>
+            </div>
+            
+            <div class="feature-toggle">
+                <label class="toggle-label">
+                    <input type="checkbox" id="errorTracker" checked>
+                    <span class="toggle-slider"></span>
+                    Error Tracker
+                </label>
+                <div class="feature-info">Monitor JavaScript errors and exceptions</div>
+            </div>
+            
+            <div class="feature-toggle">
+                <label class="toggle-label">
+                    <input type="checkbox" id="performanceMonitor" checked>
+                    <span class="toggle-slider"></span>
+                    Performance Monitor
+                </label>
+                <div class="feature-info">Track Core Web Vitals and performance metrics</div>
+            </div>
+        </div>
+
+        <!-- Recent Activity -->
+        <div class="activity-section">
+            <h3>Recent Activity</h3>
+            <div id="activityList" class="activity-list">
+                <div class="activity-item placeholder">
+                    <div class="activity-icon">ℹ️</div>
+                    <div class="activity-text">
+                        <div class="activity-title">Start monitoring to see activity</div>
+                        <div class="activity-time">Click "Start Inspection" above</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <button id="openDevtoolsBtn" class="quick-btn">
+                <span class="btn-icon">🛠️</span>
+                Open DevTools Panel
+            </button>
+            
+            <button id="settingsBtn" class="quick-btn">
+                <span class="btn-icon">⚙️</span>
+                Settings
+            </button>
+            
+            <button id="helpBtn" class="quick-btn">
+                <span class="btn-icon">❓</span>
+                Help & Documentation
+            </button>
+        </div>
+
+        <!-- Footer -->
+        <div class="popup-footer">
+            <div class="version">v1.0.0</div>
+            <div class="links">
+                <a href="#" id="githubLink">GitHub</a> |
+                <a href="#" id="reportIssueLink">Report Issue</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

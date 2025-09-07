@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dr. DOM</title>
+    <style>
+        body { 
+            padding: 15px; 
+            width: 650px; 
+            font-family: -apple-system, sans-serif;
+            margin: 0;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        h2 { 
+            color: #667eea; 
+            margin: 0;
+        }
+        .status {
+            padding: 10px;
+            background: #f0f9ff;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .stat-card {
+            background: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .requests-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: white;
+        }
+        .request-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 12px;
+            font-family: Monaco, monospace;
+        }
+        .method {
+            display: inline-block;
+            padding: 2px 6px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            margin-right: 8px;
+        }
+        .debug {
+            background: #fef3c7;
+            padding: 10px;
+            border-radius: 6px;
+            margin: 10px 0;
+            font-size: 11px;
+            font-family: Monaco, monospace;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h2>🔍 Dr. DOM - Live Monitor</h2>
+        <button id="refreshBtn" style="padding: 8px 16px; background: #667eea; color: white; border: none; border-radius: 6px; cursor: pointer;">
+            🔄 Refresh Page
+        </button>
+    </div>
+    
+    <div class="status" id="status">
+        🔄 Connecting to page data...
+    </div>
+    
+    <div class="debug" id="debug">
+        Debug: Initializing...
+    </div>
+    
+    <div class="stats">
+        <div class="stat-card">
+            <div class="stat-number" id="requestCount">-</div>
+            <div>Requests</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="errorCount">-</div>
+            <div>Errors</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="consoleCount">-</div>
+            <div>Console</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-number" id="domainCount">-</div>
+            <div>Domains</div>
+        </div>
+    </div>
+    
+    <h3>📡 Captured Requests</h3>
+    <div class="requests-list" id="requestsList">
+        <div style="padding: 20px; text-align: center; color: #94a3b8;">
+            Waiting for data...
+        </div>
+    </div>
+    
+    <script>
+        const statusEl = document.getElementById('status');
+        const debugEl = document.getElementById('debug');
+        const requestsListEl = document.getElementById('requestsList');
+        
+        function updateDebug(message) {
+            debugEl.innerHTML = `Debug: ${new Date().toLocaleTimeString()} - ${message}`;
+            console.log('[Popup Debug]', message);
+        }
+        
+        function updateStatus(message, type = 'info') {
+            const icons = {
+                'info': '🔄',
+                'success': '✅',
+                'error': '❌',
+                'warning': '⚠️'
+            };
+            statusEl.innerHTML = `${icons[type]} ${message}`;
+        }
+        
+        async function loadData() {
+            try {
+                updateDebug('Getting active tab...');
+                const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+                
+                if (!tab) {
+                    updateStatus('No active tab found', 'error');
+                    return;
+                }
+                
+                const url = tab.url;
+                updateDebug(`Tab URL: ${url}`);
+                
+                // Skip chrome:// pages
+                if (url.startsWith('chrome://')) {
+                    updateStatus('Extension pages cannot be monitored', 'warning');
+                    requestsListEl.innerHTML = '<div style="padding: 20px; text-align: center;">Navigate to a website to start capturing</div>';
+                    return;
+                }
+                
+                const domain = new URL(url).hostname;
+                updateDebug(`Domain: ${domain}`);
+                
+                // Try multiple storage keys
+                const keysToTry = [
+                    `drDOM_${domain}`,
+                    `drDOM_tab_${tab.id}`,
+                    'drDOM_capture'
+                ];
+                
+                updateDebug(`Trying storage keys: ${keysToTry.join(', ')}`);
+                
+                // Get all chrome.storage data
+                chrome.storage.local.get(null, (allData) => {
+                    updateDebug(`All storage keys: ${Object.keys(allData).join(', ')}`);
+                    
+                    // Find the right data
+                    let data = null;
+                    for (const key of keysToTry) {
+                        if (allData[key]) {
+                            data = allData[key];
+                            updateDebug(`Found data with key: ${key}`);
+                            break;
+                        }
+                    }
+                    
+                    // Also check for any drDOM_ prefixed keys
+                    if (!data) {
+                        for (const key in allData) {
+                            if (key.startsWith('drDOM_') && allData[key].requests) {
+                                data = allData[key];
+                                updateDebug(`Found data with key: ${key}`);
+                                break;
+                            }
+                        }
+                    }
+                    
+                    if (data && data.requests) {
+                        updateStatus(`✅ Connected! Showing ${data.requests.length} requests from ${domain}`, 'success');
+                        displayData(data);
+                    } else {
+                        updateStatus('No captured data yet. Refresh the page to start capturing.', 'warning');
+                        updateDebug(`No data found. Storage contains: ${JSON.stringify(Object.keys(allData))}`);
+                        
+                        // Show what we have
+                        requestsListEl.innerHTML = `
+                            <div style="padding: 20px;">
+                                <p>💡 To capture data:</p>
+                                <ol style="text-align: left;">
+                                    <li>Click "Refresh Page" button above</li>
+                                    <li>Wait for page to load</li>
+                                    <li>Open this popup again</li>
+                                </ol>
+                                <p style="margin-top: 15px; font-size: 11px; color: #64748b;">
+                                    Storage keys found: ${Object.keys(allData).length}<br>
+                                    Current domain: ${domain}
+                                </p>
+                            </div>
+                        `;
+                    }
+                });
+                
+            } catch (error) {
+                updateStatus(`Error: ${error.message}`, 'error');
+                updateDebug(`Error: ${error.stack}`);
+            }
+        }
+        
+        function displayData(data) {
+            // Update stats
+            document.getElementById('requestCount').textContent = data.requests?.length || 0;
+            document.getElementById('errorCount').textContent = data.errors?.length || 0;
+            document.getElementById('consoleCount').textContent = data.console?.length || 0;
+            
+            // Count unique domains
+            const domains = new Set(data.requests?.map(r => {
+                try {
+                    return new URL(r.url).hostname;
+                } catch {
+                    return 'unknown';
+                }
+            }));
+            document.getElementById('domainCount').textContent = domains.size;
+            
+            // Display requests
+            if (data.requests && data.requests.length > 0) {
+                requestsListEl.innerHTML = data.requests.slice(0, 100).map(req => {
+                    const shortUrl = req.url.length > 80 ? req.url.substring(0, 80) + '...' : req.url;
+                    return `
+                        <div class="request-item">
+                            <span class="method">${req.method || req.type || 'GET'}</span>
+                            <span>${shortUrl}</span>
+                            ${req.status ? `<span style="float: right; color: ${req.status < 400 ? '#10b981' : '#ef4444'};">${req.status}</span>` : ''}
+                        </div>
+                    `;
+                }).join('');
+                
+                if (data.requests.length > 100) {
+                    requestsListEl.innerHTML += `<div style="padding: 10px; text-align: center; background: #f8fafc;">Showing first 100 of ${data.requests.length} requests</div>`;
+                }
+            } else {
+                requestsListEl.innerHTML = '<div style="padding: 20px; text-align: center;">No requests captured yet</div>';
+            }
+        }
+        
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', async () => {
+            const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+            
+            updateStatus('Refreshing page and clearing old data...', 'info');
+            
+            // Clear storage for this domain
+            const domain = new URL(tab.url).hostname;
+            chrome.storage.local.remove([`drDOM_${domain}`, `drDOM_tab_${tab.id}`], () => {
+                updateDebug(`Cleared storage for ${domain}`);
+            });
+            
+            // Reload tab
+            chrome.tabs.reload(tab.id);
+            
+            // Wait and reload data
+            setTimeout(() => {
+                loadData();
+            }, 3000);
+        });
+        
+        // Load immediately
+        updateDebug('Initial load starting...');
+        loadData();
+        
+        // Auto-refresh every 2 seconds
+        setInterval(() => {
+            loadData();
+        }, 2000);
+    </script>
+</body>
+</html>

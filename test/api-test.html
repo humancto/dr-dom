@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. DOM API Test Page</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        h1 {
+            color: #333;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+        .log {
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            margin-top: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .log-entry {
+            padding: 5px;
+            margin: 5px 0;
+            border-left: 3px solid #667eea;
+            padding-left: 10px;
+            background: #f8f9fa;
+        }
+        .error {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        .success {
+            border-left-color: #10b981;
+            background: #f0fdf4;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔍 Dr. DOM API Test Page</h1>
+    <p>This page generates various API calls to test the Dr. DOM extension's network monitoring capabilities.</p>
+    
+    <div class="button-group">
+        <button onclick="makeJsonRequest()">📡 JSON API Call</button>
+        <button onclick="makeMultipleRequests()">🔄 Multiple Requests</button>
+        <button onclick="makeSlowRequest()">🐌 Slow Request (3s)</button>
+        <button onclick="makeFailedRequest()">❌ Failed Request</button>
+        <button onclick="makeGraphQLRequest()">📊 GraphQL Request</button>
+        <button onclick="makeThirdPartyRequest()">🌐 Third-Party API</button>
+        <button onclick="makeLargeDataRequest()">📦 Large Data Transfer</button>
+        <button onclick="makeAuthRequest()">🔐 Auth Request</button>
+        <button onclick="triggerError()">🐛 Trigger JS Error</button>
+        <button onclick="clearLog()">🧹 Clear Log</button>
+    </div>
+    
+    <div class="log" id="log">
+        <div class="log-entry">Ready to test! Open Dr. DOM extension to monitor requests.</div>
+    </div>
+
+    <script>
+        function log(message, type = 'info') {
+            const logElement = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logElement.appendChild(entry);
+            logElement.scrollTop = logElement.scrollHeight;
+            
+            // Also log to console for Dr. DOM to capture
+            if (type === 'error') {
+                console.error(message);
+            } else {
+                console.log(message);
+            }
+        }
+
+        async function makeJsonRequest() {
+            log('Making JSON API request to /api/v1/users...');
+            try {
+                const response = await fetch('https://jsonplaceholder.typicode.com/users');
+                const data = await response.json();
+                log(`Success! Received ${data.length} users`, 'success');
+            } catch (error) {
+                log(`Error: ${error.message}`, 'error');
+            }
+        }
+
+        async function makeMultipleRequests() {
+            log('Making 5 parallel requests...');
+            const endpoints = [
+                'https://jsonplaceholder.typicode.com/posts/1',
+                'https://jsonplaceholder.typicode.com/comments/1',
+                'https://jsonplaceholder.typicode.com/albums/1',
+                'https://jsonplaceholder.typicode.com/photos/1',
+                'https://jsonplaceholder.typicode.com/todos/1'
+            ];
+            
+            try {
+                const promises = endpoints.map(url => fetch(url));
+                await Promise.all(promises);
+                log('All 5 requests completed!', 'success');
+            } catch (error) {
+                log(`Error in parallel requests: ${error.message}`, 'error');
+            }
+        }
+
+        async function makeSlowRequest() {
+            log('Making slow request (simulated 3 second delay)...');
+            try {
+                const response = await fetch('https://httpbin.org/delay/3');
+                log('Slow request completed!', 'success');
+            } catch (error) {
+                log(`Slow request failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function makeFailedRequest() {
+            log('Making request that will fail (404)...');
+            try {
+                const response = await fetch('https://jsonplaceholder.typicode.com/nonexistent');
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                log(`Request failed as expected: ${error.message}`, 'error');
+            }
+        }
+
+        async function makeGraphQLRequest() {
+            log('Making GraphQL request...');
+            try {
+                const response = await fetch('https://graphql-pokemon2.vercel.app/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        query: `
+                            query GetPikachu {
+                                pokemon(name: "Pikachu") {
+                                    id
+                                    name
+                                    types
+                                }
+                            }
+                        `
+                    })
+                });
+                const data = await response.json();
+                log('GraphQL request completed!', 'success');
+            } catch (error) {
+                log(`GraphQL request failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function makeThirdPartyRequest() {
+            log('Making third-party API request...');
+            try {
+                const response = await fetch('https://api.github.com/repos/microsoft/vscode');
+                const data = await response.json();
+                log(`GitHub API: VSCode has ${data.stargazers_count} stars!`, 'success');
+            } catch (error) {
+                log(`Third-party request failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function makeLargeDataRequest() {
+            log('Fetching large dataset...');
+            try {
+                const response = await fetch('https://jsonplaceholder.typicode.com/photos');
+                const data = await response.json();
+                log(`Received ${data.length} photos (large dataset)`, 'success');
+            } catch (error) {
+                log(`Large data request failed: ${error.message}`, 'error');
+            }
+        }
+
+        async function makeAuthRequest() {
+            log('Making authenticated request (with headers)...');
+            try {
+                const response = await fetch('https://httpbin.org/bearer', {
+                    headers: {
+                        'Authorization': 'Bearer test-token-12345',
+                        'X-API-Key': 'demo-api-key'
+                    }
+                });
+                const data = await response.json();
+                log('Auth request completed!', 'success');
+            } catch (error) {
+                log(`Auth request failed: ${error.message}`, 'error');
+            }
+        }
+
+        function triggerError() {
+            log('Triggering JavaScript error...');
+            try {
+                // This will cause an error
+                undefinedFunction();
+            } catch (error) {
+                log(`JavaScript error triggered: ${error.message}`, 'error');
+                throw error; // Re-throw so Dr. DOM can catch it
+            }
+        }
+
+        function clearLog() {
+            const logElement = document.getElementById('log');
+            logElement.innerHTML = '<div class="log-entry">Log cleared. Ready for new tests!</div>';
+        }
+
+        // Auto-load some data when page loads
+        window.addEventListener('load', () => {
+            log('Page loaded! Dr. DOM should be capturing this.');
+            
+            // Make an immediate request
+            fetch('https://jsonplaceholder.typicode.com/posts/1')
+                .then(response => response.json())
+                .then(data => log('Initial data loaded on page load', 'success'))
+                .catch(error => log(`Initial load error: ${error.message}`, 'error'));
+        });
+
+        // Add some console messages for Dr. DOM to capture
+        console.log('Dr. DOM Test Page initialized');
+        console.info('This is an info message');
+        console.warn('This is a warning message');
+        console.debug('This is a debug message');
+    </script>
+</body>
+</html>

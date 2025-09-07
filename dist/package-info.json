@@ -1,0 +1,24 @@
+{
+  "name": "Dr. DOM Browser Extension",
+  "version": "1.0.0",
+  "description": "The fun way to understand any website!",
+  "build_date": "2025-09-07T19:13:04.983Z",
+  "build_mode": "production",
+  "browsers": {
+    "chrome": "Chrome/Chromium 88+",
+    "firefox": "Firefox 88+"
+  },
+  "installation": {
+    "chrome": "Load unpacked extension from chrome folder",
+    "firefox": "Load temporary add-on from firefox/manifest.json"
+  },
+  "features": [
+    "🔍 Interactive DOM inspection",
+    "🌐 Real-time network monitoring",
+    "🐛 JavaScript error tracking",
+    "📊 Performance analysis",
+    "🎉 Gamified experience",
+    "📋 Beautiful HTML reports",
+    "🔎 Smart search functionality"
+  ]
+}
