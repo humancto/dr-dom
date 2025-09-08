@@ -11,6 +11,10 @@
     requests: [],
     errors: [],
     console: [],
+    scripts: [],
+    trackingPixels: [],
+    securityIssues: [],
+    cookies: [],
     startTime: performance.now(),
     ready: false,
     lastSaveTime: 0,
@@ -23,6 +27,31 @@
   const SAVE_INTERVAL = 500; // Or every 500ms, whichever comes first
   
   console.log(`[Dr. DOM Live] 🚀 Starting live capture for ${DOMAIN}`);
+
+  // Tracking pixel patterns
+  const TRACKING_PIXELS = {
+    facebook: ['facebook.com/tr', 'connect.facebook.net'],
+    google: ['google-analytics.com', 'googletagmanager.com', 'doubleclick.net'],
+    linkedin: ['px.ads.linkedin.com'],
+    twitter: ['analytics.twitter.com'],
+    tiktok: ['analytics.tiktok.com'],
+    pinterest: ['ct.pinterest.com'],
+    amazon: ['amazon-adsystem.com'],
+    hotjar: ['static.hotjar.com'],
+    mixpanel: ['cdn.mxpnl.com', 'api.mixpanel.com'],
+    segment: ['cdn.segment.com'],
+    hubspot: ['js.hs-scripts.com', 'track.hubspot.com']
+  };
+
+  // Detect tracking pixels
+  function detectTrackingPixel(url) {
+    for (const [platform, patterns] of Object.entries(TRACKING_PIXELS)) {
+      if (patterns.some(p => url.includes(p))) {
+        return { platform, url, timestamp: Date.now() };
+      }
+    }
+    return null;
+  }
 
   // Async function to write updates to storage
   async function writeUpdate(update) {
@@ -53,6 +82,8 @@
         requests: [],
         errors: [],
         console: [],
+        scripts: [],
+        trackingPixels: [],
         startTime: window.__drDOM.startTime,
         liveUpdates: []
       };
@@ -76,6 +107,9 @@
           existingData.console.push(update.data);
         }
       });
+      
+      // Include tracking pixels
+      existingData.trackingPixels = window.__drDOM.trackingPixels || [];
       
       // Save with metadata
       existingData.lastUpdate = Date.now();
@@ -119,6 +153,13 @@
     };
     
     window.__drDOM.requests.push(requestData);
+    
+    // Check for tracking pixel
+    const pixel = detectTrackingPixel(requestData.url);
+    if (pixel) {
+      window.__drDOM.trackingPixels.push(pixel);
+      console.log(`[Dr. DOM] 🎯 Tracking pixel detected: ${pixel.platform}`);
+    }
     
     // Stream this update immediately
     writeUpdate({
@@ -179,6 +220,13 @@
     };
     
     window.__drDOM.requests.push(requestData);
+    
+    // Check for tracking pixel
+    const pixel = detectTrackingPixel(requestData.url);
+    if (pixel) {
+      window.__drDOM.trackingPixels.push(pixel);
+      console.log(`[Dr. DOM] 🎯 Tracking pixel detected: ${pixel.platform}`);
+    }
     
     // Stream XHR start
     writeUpdate({
@@ -274,6 +322,42 @@
       console.warn('[Dr. DOM Live] PerformanceObserver failed:', e);
     }
   }
+
+  // Monitor DOM for script injections
+  const observer = new MutationObserver((mutations) => {
+    mutations.forEach(mutation => {
+      mutation.addedNodes.forEach(node => {
+        if (node.nodeType === 1 && node.tagName === 'SCRIPT') {
+          const scriptData = {
+            id: Date.now() + '_' + Math.random(),
+            type: 'script',
+            src: node.src || 'inline',
+            hasContent: !!node.textContent,
+            async: node.async,
+            defer: node.defer,
+            timestamp: Date.now()
+          };
+          
+          window.__drDOM.scripts.push(scriptData);
+          
+          // Check if it's from a tracking domain
+          if (node.src) {
+            const pixel = detectTrackingPixel(node.src);
+            if (pixel) {
+              window.__drDOM.trackingPixels.push({...pixel, type: 'script'});
+              console.log(`[Dr. DOM] 🎯 Tracking script detected: ${pixel.platform}`);
+            }
+          }
+        }
+      });
+    });
+  });
+  
+  // Start observing immediately
+  observer.observe(document, {
+    childList: true,
+    subtree: true
+  });
 
   // Mark as ready and do initial save
   window.__drDOM.ready = true;

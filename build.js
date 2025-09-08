@@ -31,6 +31,7 @@ class DrDOMBuilder {
       this.copyContentScripts();
       this.copyBackground();
       this.copyPopup();
+      this.copyUtils();
       this.copyAssets();
       
       // Generate manifests
@@ -167,6 +168,33 @@ class DrDOMBuilder {
     });
     
     console.log(`🎨 Copied ${files.length} popup files`);
+  }
+
+  copyUtils() {
+    const utilsDir = 'utils';
+    if (!fs.existsSync(utilsDir)) {
+      console.log('⚠️ Utils directory not found, skipping');
+      return;
+    }
+    
+    const targetChrome = path.join(this.distDir, 'chrome', utilsDir);
+    const targetFirefox = path.join(this.distDir, 'firefox', utilsDir);
+    
+    fs.mkdirSync(targetChrome, { recursive: true });
+    fs.mkdirSync(targetFirefox, { recursive: true });
+    
+    // Copy all files from utils directory
+    const files = fs.readdirSync(utilsDir);
+    
+    files.forEach(file => {
+      const sourcePath = path.join(utilsDir, file);
+      if (fs.statSync(sourcePath).isFile()) {
+        fs.copyFileSync(sourcePath, path.join(targetChrome, file));
+        fs.copyFileSync(sourcePath, path.join(targetFirefox, file));
+      }
+    });
+    
+    console.log(`🔧 Copied ${files.length} utility files`);
   }
 
   copyAssets() {

@@ -91,14 +91,20 @@ class DrDOMAdvancedPopup {
     // Update main stats
     const requests = data.requests || [];
     const errors = data.errors || [];
+    const trackingPixels = data.trackingPixels || [];
     
     this.updateElement('requestCount', requests.length);
     this.updateElement('errorCount', errors.length);
+    this.updateElement('trackingCount', trackingPixels.length);
     
     // Calculate performance score
     const avgTime = this.calculateAverageResponseTime(requests);
     const perfScore = avgTime < 500 ? 100 : avgTime < 1000 ? 80 : avgTime < 2000 ? 60 : 40;
     this.updateElement('performanceScore', perfScore);
+    
+    // Calculate safety score
+    const safetyScore = this.calculateSafetyScore(data);
+    this.updateElement('safetyScore', safetyScore);
     
     // Calculate average response time
     this.updateElement('avgResponseTime', avgTime > 0 ? `${Math.round(avgTime)}ms` : '--');
@@ -296,6 +302,7 @@ class DrDOMAdvancedPopup {
 
   updateSecurityAnalysis(data) {
     const requests = data.requests || [];
+    const trackingPixels = data.trackingPixels || [];
     
     let https = 0, http = 0, mixed = 0, thirdParty = 0;
     const currentDomain = this.currentTab ? new URL(this.currentTab.url).hostname : '';
@@ -337,6 +344,29 @@ class DrDOMAdvancedPopup {
         `).join('');
       } else {
         issuesList.innerHTML = '<div class="issues-placeholder">No security issues detected</div>';
+      }
+    }
+    
+    // Display tracking pixels
+    const trackingList = document.getElementById('trackingPixelsList');
+    if (trackingList) {
+      if (trackingPixels.length > 0) {
+        const uniquePlatforms = {};
+        trackingPixels.forEach(pixel => {
+          if (!uniquePlatforms[pixel.platform]) {
+            uniquePlatforms[pixel.platform] = [];
+          }
+          uniquePlatforms[pixel.platform].push(pixel);
+        });
+        
+        trackingList.innerHTML = Object.entries(uniquePlatforms).map(([platform, pixels]) => `
+          <div class="tracking-item">
+            <span class="tracking-platform">🎯 ${platform.charAt(0).toUpperCase() + platform.slice(1)}</span>
+            <span class="tracking-count">${pixels.length} ${pixels.length === 1 ? 'pixel' : 'pixels'}</span>
+          </div>
+        `).join('');
+      } else {
+        trackingList.innerHTML = '<div class="tracking-placeholder">No tracking pixels detected</div>';
       }
     }
   }
@@ -461,6 +491,48 @@ class DrDOMAdvancedPopup {
     return timings.reduce((a, b) => a + b, 0) / timings.length;
   }
 
+  calculateSafetyScore(data) {
+    let score = 100;
+    const trackingPixels = data.trackingPixels || [];
+    const errors = data.errors || [];
+    const requests = data.requests || [];
+    
+    // Deduct for tracking pixels
+    if (trackingPixels.length > 10) {
+      score -= 30;
+    } else if (trackingPixels.length > 5) {
+      score -= 20;
+    } else if (trackingPixels.length > 0) {
+      score -= 10;
+    }
+    
+    // Deduct for errors
+    if (errors.length > 10) {
+      score -= 20;
+    } else if (errors.length > 5) {
+      score -= 10;
+    } else if (errors.length > 0) {
+      score -= 5;
+    }
+    
+    // Check for HTTP resources (mixed content)
+    const httpRequests = requests.filter(r => r.url && r.url.startsWith('http://'));
+    if (httpRequests.length > 0) {
+      score -= 15;
+    }
+    
+    // Check for suspicious domains
+    const suspiciousDomains = ['doubleclick', 'googletagmanager', 'facebook.com/tr', 'hotjar'];
+    const hasSuspicious = requests.some(r => 
+      suspiciousDomains.some(domain => r.url && r.url.includes(domain))
+    );
+    if (hasSuspicious) {
+      score -= 10;
+    }
+    
+    return Math.max(0, Math.min(100, score));
+  }
+
   formatBytes(bytes) {
     if (bytes === 0) return '0 B';
     const k = 1024;
@@ -526,10 +598,30 @@ class DrDOMAdvancedPopup {
       });
     }
 
-    // Export button
+    // Export button and menu
     const exportBtn = document.getElementById('exportBtn');
-    if (exportBtn) {
-      exportBtn.addEventListener('click', () => this.exportReport());
+    const exportMenu = document.getElementById('exportMenu');
+    
+    if (exportBtn && exportMenu) {
+      exportBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        exportMenu.style.display = exportMenu.style.display === 'none' ? 'block' : 'none';
+      });
+      
+      // Close menu when clicking outside
+      document.addEventListener('click', () => {
+        exportMenu.style.display = 'none';
+      });
+      
+      // Handle export options
+      document.querySelectorAll('.export-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const format = option.dataset.format;
+          this.exportData(format);
+          exportMenu.style.display = 'none';
+        });
+      });
     }
   }
 
@@ -558,6 +650,36 @@ class DrDOMAdvancedPopup {
     });
   }
 
+  exportData(format) {
+    if (!this.data || Object.keys(this.data).length === 0) {
+      alert('No data to export. Please wait for data to be captured.');
+      return;
+    }
+    
+    try {
+      let filename;
+      switch(format) {
+        case 'har':
+          filename = HARExporter.downloadHAR(this.data);
+          console.log(`📦 Exported HAR file: ${filename}`);
+          break;
+        case 'json':
+          filename = HARExporter.exportToJSON(this.data);
+          console.log(`📄 Exported JSON file: ${filename}`);
+          break;
+        case 'csv':
+          filename = HARExporter.exportToCSV(this.data);
+          console.log(`📊 Exported CSV file: ${filename}`);
+          break;
+        default:
+          console.error('Unknown export format:', format);
+      }
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Export failed. Please check the console for details.');
+    }
+  }
+  
   exportReport() {
     const report = {
       url: this.currentTab.url,
