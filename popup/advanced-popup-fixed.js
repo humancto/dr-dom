@@ -236,6 +236,50 @@ class DrDOMAdvancedPopup {
     }
   }
 
+  filterRequests() {
+    const searchTerm = document.getElementById('requestSearch')?.value.toLowerCase() || '';
+    const filterType = document.getElementById('requestFilter')?.value || 'all';
+    
+    let filtered = [...(this.data.requests || [])];
+    
+    // Apply search filter
+    if (searchTerm) {
+      filtered = filtered.filter(req => 
+        req.url?.toLowerCase().includes(searchTerm) ||
+        req.method?.toLowerCase().includes(searchTerm) ||
+        req.type?.toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    // Apply type filter
+    switch (filterType) {
+      case 'xhr':
+        filtered = filtered.filter(r => r.type === 'xhr');
+        break;
+      case 'fetch':
+        filtered = filtered.filter(r => r.type === 'fetch');
+        break;
+      case 'failed':
+        filtered = filtered.filter(r => r.failed || r.status >= 400);
+        break;
+      case 'slow':
+        filtered = filtered.filter(r => r.duration > 2000);
+        break;
+      case '3rd-party':
+        const currentDomain = this.currentTab ? new URL(this.currentTab.url).hostname : '';
+        filtered = filtered.filter(r => {
+          try {
+            return !new URL(r.url).hostname.includes(currentDomain);
+          } catch {
+            return false;
+          }
+        });
+        break;
+    }
+    
+    this.updateRequestsTable(filtered);
+  }
+  
   updateRequestsTable(requests) {
     const tbody = document.getElementById('requestsTableBody');
     if (!tbody) return;
@@ -303,6 +347,9 @@ class DrDOMAdvancedPopup {
   updateSecurityAnalysis(data) {
     const requests = data.requests || [];
     const trackingPixels = data.trackingPixels || [];
+    
+    // Analyze cookies
+    this.analyzeCookies();
     
     let https = 0, http = 0, mixed = 0, thirdParty = 0;
     const currentDomain = this.currentTab ? new URL(this.currentTab.url).hostname : '';
@@ -374,16 +421,16 @@ class DrDOMAdvancedPopup {
   updateAPIAnalysis(data) {
     const requests = data.requests || [];
     
-    // Find API endpoints
+    // Find API endpoints with responses
     const apis = requests.filter(req => {
       const url = req.url || '';
-      return url.includes('/api/') || 
+      const isAPI = url.includes('/api/') || 
              url.includes('.json') || 
              url.includes('/v1/') || 
              url.includes('/v2/') ||
              url.includes('/graphql') ||
-             req.type === 'fetch' || 
-             req.type === 'xhr';
+             (req.type === 'fetch' || req.type === 'xhr');
+      return isAPI && req.status >= 200 && req.status < 300;
     });
     
     // Unique endpoints
@@ -437,6 +484,39 @@ class DrDOMAdvancedPopup {
         endpointsList.innerHTML = '<div class="endpoints-placeholder">No API endpoints discovered yet</div>';
       }
     }
+    
+    // Display API schemas if we have response bodies
+    const apisWithBodies = apis.filter(req => req.responseBody);
+    const schemasList = document.getElementById('apiSchemasList');
+    
+    if (schemasList) {
+      if (apisWithBodies.length > 0) {
+        const schemas = apisWithBodies.slice(0, 3).map(req => {
+          const schema = this.extractSchema(req.responseBody);
+          return `
+            <div class="schema-item">
+              <div class="schema-endpoint">${req.method} ${this.truncateUrl(req.url, 40)}</div>
+              <div class="schema-fields">${schema}</div>
+            </div>
+          `;
+        });
+        schemasList.innerHTML = schemas.join('');
+      } else {
+        schemasList.innerHTML = '<div class="schemas-placeholder">No API responses captured yet</div>';
+      }
+    }
+  }
+  
+  extractSchema(obj) {
+    if (!obj || typeof obj !== 'object') return 'Primitive response';
+    
+    const keys = Object.keys(obj).slice(0, 5);
+    if (keys.length === 0) return 'Empty object';
+    
+    return keys.map(key => {
+      const type = Array.isArray(obj[key]) ? 'array' : typeof obj[key];
+      return `<span class="schema-field">${key}: ${type}</span>`;
+    }).join(', ');
   }
 
   generatePerformanceInsights(data) {
@@ -555,6 +635,53 @@ class DrDOMAdvancedPopup {
     return 'server-error';
   }
 
+  async analyzeCookies() {
+    if (!this.currentTab) return;
+    
+    try {
+      const url = new URL(this.currentTab.url);
+      const cookies = await chrome.cookies.getAll({ domain: url.hostname });
+      
+      let essential = 0, tracking = 0;
+      const trackingPatterns = ['_ga', '_gid', 'fbp', 'fbc', '_utm', 'doubleclick'];
+      
+      cookies.forEach(cookie => {
+        const isTracking = trackingPatterns.some(p => cookie.name.includes(p));
+        if (isTracking) {
+          tracking++;
+        } else if (cookie.name.includes('session') || cookie.name.includes('auth')) {
+          essential++;
+        }
+      });
+      
+      // Update cookie display
+      this.updateElement('cookieTotal', cookies.length);
+      this.updateElement('cookieEssential', essential);
+      this.updateElement('cookieTracking', tracking);
+      
+      // Simple compliance check
+      const gdprOk = tracking === 0 || cookies.some(c => c.name.includes('consent'));
+      const ccpaOk = tracking < 5;
+      
+      this.updateElement('gdprStatus', gdprOk ? '✅' : '❌');
+      this.updateElement('ccpaStatus', ccpaOk ? '✅' : '⚠️');
+      
+      // Display risks
+      const risksEl = document.getElementById('cookieRisks');
+      if (risksEl) {
+        if (tracking > 5) {
+          risksEl.innerHTML = `<div class="cookie-risk high">⚠️ ${tracking} tracking cookies detected</div>`;
+        } else if (tracking > 0) {
+          risksEl.innerHTML = `<div class="cookie-risk medium">ℹ️ ${tracking} tracking cookies found</div>`;
+        } else {
+          risksEl.innerHTML = '<div class="cookie-risk low">✅ No tracking cookies detected</div>';
+        }
+      }
+    } catch (error) {
+      console.error('Cookie analysis failed:', error);
+    }
+  }
+  
   updateElement(id, value, selector = null) {
     const element = selector ? document.querySelector(selector) : document.getElementById(id);
     if (element) {
@@ -588,6 +715,17 @@ class DrDOMAdvancedPopup {
   }
 
   setupEventListeners() {
+    // Search and filter functionality
+    const searchInput = document.getElementById('requestSearch');
+    const filterSelect = document.getElementById('requestFilter');
+    
+    if (searchInput) {
+      searchInput.addEventListener('input', () => this.filterRequests());
+    }
+    
+    if (filterSelect) {
+      filterSelect.addEventListener('change', () => this.filterRequests());
+    }
     // Refresh button
     const refreshBtn = document.getElementById('refreshBtn');
     if (refreshBtn) {

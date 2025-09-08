@@ -1,227 +1,194 @@
-# 🔍 Dr. DOM - The Fun Way to Understand Any Website!
+# 🔍 Dr. DOM - Advanced Web Analysis Browser Extension
 
-> **Transform into a web detective!** Dr. DOM makes website analysis as exciting as playing a game. No coding knowledge required - just curiosity! 
+<div align="center">
+  
+[![Chrome Web Store](https://img.shields.io/badge/Chrome-Extension-4285F4?logo=google-chrome&logoColor=white)](https://chrome.google.com/webstore)
+[![Firefox Add-ons](https://img.shields.io/badge/Firefox-Add--on-FF7139?logo=firefox&logoColor=white)](https://addons.mozilla.org)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-![Dr. DOM Screenshot](https://via.placeholder.com/800x400/667eea/white?text=Dr.+DOM+in+Action)
+**The Ultimate Web Transparency Tool - See Everything Your Browser Sees**
 
-## 🎯 What Makes Dr. DOM Special?
+[Install](#-installation) • [Features](#-features) • [Usage](#-usage) • [Contributing](#-contributing) • [Documentation](#-documentation)
 
-**For Everyone** - Whether you're a curious user, business owner, marketer, or developer, Dr. DOM speaks your language with:
-- 🎮 **Gamified Interface** - Earn achievements while exploring websites!
-- 🔍 **X-Ray Vision** - See what's happening behind the scenes of any website
-- 🚀 **Real-time Magic** - Watch network requests fly by like shooting stars
-- 📊 **Smart Insights** - Get plain English explanations of technical stuff
-- 🎉 **Fun Effects** - Rainbow mode, particles, and visual celebrations!
+</div>
 
-## ✨ Superpowers You'll Gain
+## 🎯 What is Dr. DOM?
 
-### 🕵️ **Website Detective Mode**
-- **See All Network Activity** - Watch every request a website makes in real-time
-- **Spot Slow Loading** - Instantly identify what's making a site slow
-- **Find Broken Stuff** - Catch failed requests and errors as they happen
-- **Security Scanner** - Check if a website is using proper security measures
+Dr. DOM is a powerful browser extension that provides **real-time, always-on monitoring** of any website you visit. Unlike traditional developer tools that require manual activation, Dr. DOM automatically captures and analyzes everything from the moment a page loads.
 
-### 📈 **Performance Superhero** 
-- **Speed Analysis** - Get a performance score for any website
-- **Optimization Tips** - Receive actionable suggestions to improve speed
-- **Data Usage Tracker** - See how much data websites are using
-- **Mobile-Friendly Checker** - Verify if sites work well on phones
+### 🌟 Key Differentiators
 
-### 🎨 **Visual Website Explorer**
-- **Element Highlighter** - Hover over elements to see what they are
-- **Interactive Feedback** - Click effects and visual notifications
-- **Screenshot Capture** - Take snapshots with analysis overlay
-- **Achievement System** - Unlock badges as you discover new things!
+- **🔴 Always-On Capture** - Never miss early page requests again
+- **🛡️ Privacy First** - Instant tracking pixel and cookie analysis
+- **📊 Safety Score** - Know if a site is safe at a glance
+- **📦 Professional Export** - HAR, JSON, CSV formats
+- **👁️ GDPR/CCPA Compliance** - Automatic compliance checking
+- **🎯 Tracking Detection** - Identifies 15+ major tracking platforms
 
-### 📋 **Smart Reporting**
-- **One-Click Export** - Generate beautiful HTML reports
-- **Search Everything** - Find specific requests or elements instantly  
-- **Plain English Summaries** - No technical jargon, just clear insights
-- **Share Findings** - Easy-to-understand reports for teams
+## ✨ Features
 
-## 🚀 Quick Start (2 Minutes!)
+### 🔒 Privacy & Security
+- **Tracking Pixel Detection** - Identifies Meta/Facebook, Google, LinkedIn, Twitter, TikTok, and 10+ other platforms
+- **Cookie Analysis** - Categorizes cookies (essential, functional, analytics, marketing, tracking)
+- **GDPR/CCPA Compliance** - Real-time compliance validation
+- **Safety Score** - Instant 0-100 safety rating for any website
+- **Security Issues** - Mixed content, insecure cookies, vulnerable libraries
 
-### Installation
-1. **Download** the extension files
-2. **Open Chrome** and go to `chrome://extensions/`
-3. **Enable Developer Mode** (toggle in top right)
-4. **Click "Load Unpacked"** and select the Dr. DOM folder
-5. **Pin the Extension** - Click the puzzle piece icon and pin Dr. DOM
+### 🚀 Performance Analysis
+- **Request Monitoring** - Captures all XHR, Fetch, and resource requests
+- **Response Time Tracking** - Identifies slow endpoints
+- **Performance Insights** - Actionable optimization recommendations
+- **Resource Analysis** - Images, scripts, stylesheets breakdown
 
-### Your First Investigation 🕵️
-1. **Visit any website** (try amazon.com, reddit.com, or your favorite site)
-2. **Click the Dr. DOM icon** 🔍 in your browser toolbar  
-3. **Hit "Start Inspection"** - Watch the magic begin!
-4. **Explore the tabs** - Live View shows real-time activity
-5. **Try Fun Mode** - Click rainbow button for visual effects!
+### 🔌 Developer Tools
+- **HAR Export** - Industry-standard format for sharing
+- **API Discovery** - Automatic endpoint detection
+- **Response Schema** - Captures and displays API response structures
+- **Request Search** - Filter by type, status, speed
+- **Error Tracking** - JavaScript errors and failed requests
 
-## 🎮 Features That Make Learning Fun
+## 🚀 Installation
 
-### 🏆 Achievement System
-Unlock badges as you explore:
-- **🎉 First Steps** - Activate Dr. DOM for the first time
-- **📸 Shutterbug** - Capture your first screenshot  
-- **🌐 Network Ninja** - Discover your first failed request
-- **⚡ Speed Demon** - Find a super fast loading element
-- **🔒 Security Scout** - Identify a security header
+### Chrome / Chromium Browsers
 
-### 🌈 Visual Effects
-Make website analysis exciting:
-- **Particle Mode** - Sparkles follow your cursor
-- **Element Rave** - Watch page elements dance
-- **Rainbow Mode** - Everything becomes colorful
-- **Click Effects** - Beautiful animations on interactions
-- **Live Notifications** - Requests appear as floating bubbles
+1. Clone the repository:
+```bash
+git clone https://github.com/humancto/dr-dom.git
+cd dr-dom
+```
 
-### 📊 Smart Insights
-Get explanations anyone can understand:
-- **"This image is loading slowly"** instead of "HTTP 200, 2.3s response time"
-- **"This website is using good security"** instead of "X-Frame-Options header present"  
-- **"Too many images slowing things down"** instead of "15 image requests detected"
+2. Build the extension:
+```bash
+npm install
+npm run build
+```
 
-## 📱 Real-World Use Cases
+3. Load in Chrome:
+   - Open `chrome://extensions/`
+   - Enable "Developer mode"
+   - Click "Load unpacked"
+   - Select the `dist/chrome` folder
 
-### For Business Owners
-- **"Is my website fast enough?"** - Get instant performance scores
-- **"Why do customers leave my site?"** - Spot slow loading elements  
-- **"Is my site secure?"** - Check for security best practices
-- **"How much data does my site use?"** - Monitor mobile data consumption
+### Firefox
 
-### For Marketers  
-- **"How do competitor sites work?"** - Analyze any website's requests
-- **"Are our ads loading properly?"** - Track advertising scripts
-- **"Which images need optimization?"** - Find large, slow-loading images
-- **"Is our site mobile-friendly?"** - Check mobile performance
+1. Follow steps 1-2 above
+2. Load in Firefox:
+   - Open `about:debugging`
+   - Click "This Firefox"
+   - Click "Load Temporary Add-on"
+   - Select `dist/firefox/manifest.json`
 
-### For Students & Curious Minds
-- **"How does a website work?"** - See requests and responses in action
-- **"What makes sites fast or slow?"** - Learn performance principles visually
-- **"How do ads and tracking work?"** - Understand web privacy
-- **"What's happening when I click?"** - See the technical magic behind interactions
+## 📖 Usage
 
-### For Teams & Developers
-- **"Share findings easily"** - Generate beautiful reports for stakeholders  
-- **"Debug issues visually"** - See exactly what's failing and why
-- **"Monitor performance"** - Get real-time metrics and insights
-- **"Educate non-technical team members"** - Plain English explanations
+### Basic Usage
 
-## 📊 What You'll Discover
+1. **Install the extension** following the steps above
+2. **Navigate to any website** - Dr. DOM starts capturing immediately
+3. **Click the extension icon** to view the analysis
+4. **Explore the tabs**:
+   - **Overview** - Quick stats and activity stream
+   - **Requests** - All network requests with search/filter
+   - **Performance** - Timing metrics and insights
+   - **Security** - Trackers, cookies, and compliance
+   - **APIs** - Discovered endpoints and schemas
 
-### Network Activity
-- **Every Request** - APIs, images, scripts, styles
-- **Response Times** - How fast each element loads
-- **Failed Requests** - Broken links or server errors  
-- **Data Transfer** - How much bandwidth is used
-- **Security Headers** - What protection the site has
+### Export Data
 
-### Performance Metrics
-- **Load Speed** - Time to fully load the page
-- **Render Performance** - How quickly content appears
-- **Memory Usage** - How much RAM the page consumes
-- **Core Web Vitals** - Google's quality metrics
+Click the **Export** button to download data in:
+- **HAR** - For use in Chrome DevTools, Charles Proxy, etc.
+- **JSON** - Raw data for custom analysis
+- **CSV** - For spreadsheet analysis
 
-### Smart Analysis  
-- **Bottleneck Detection** - What's slowing the site down
-- **Optimization Suggestions** - How to make it faster
-- **Security Assessment** - Safety and privacy check
-- **Mobile Readiness** - How well it works on phones
+### Understanding the Safety Score
 
-## 🎨 Interface Highlights
+- **90-100** 🟢 Excellent - Minimal tracking, good security
+- **70-89** 🟡 Good - Some tracking, minor issues
+- **50-69** 🟠 Fair - Moderate tracking, security concerns
+- **0-49** 🔴 Poor - Heavy tracking, security issues
 
-### Main Panel
-- **Live Feed** - Real-time activity stream with fun icons
-- **Element Explorer** - Interactive page structure viewer
-- **Event Monitor** - Track clicks, scrolls, and interactions  
-- **Performance Dashboard** - Visual metrics and charts
-- **Fun Mode** - Games and achievements!
+## 🛠️ Development
 
-### Smart Search
-Find anything instantly:
-- `failed` - Show all failed requests
-- `slow` - Find requests taking >2 seconds  
-- `image` - See all image loading
-- `api` - Show API calls and responses
-- `error` - Find JavaScript errors
+### Prerequisites
 
-### Export Options
-Share your findings:
-- **📄 HTML Report** - Beautiful, shareable analysis
-- **📊 CSV Data** - Spreadsheet-friendly format
-- **📋 JSON Export** - Technical data for developers
-- **📸 Screenshots** - Visual proof of findings
+- Node.js 16+
+- npm or yarn
+- Chrome/Firefox browser
 
-## 🌟 Why Dr. DOM is Different
+### Setup
 
-### ❌ Traditional Tools:
-- Complicated interfaces
-- Technical jargon
-- Boring text output
-- Hard to share findings
-- Intimidating for beginners
+```bash
+# Clone the repository
+git clone https://github.com/humancto/dr-dom.git
+cd dr-dom
 
-### ✅ Dr. DOM:
-- **Intuitive & Fun** - Like playing a game!
-- **Plain English** - Anyone can understand
-- **Visual & Interactive** - See everything in action  
-- **Shareable Reports** - Perfect for teams
-- **Achievement System** - Learn while having fun!
+# Install dependencies
+npm install
 
-## 🔧 Technical Details (For the Curious)
+# Development build with watch
+npm run dev
 
-### Built With Love Using:
-- **Manifest V3** - Latest Chrome extension standard
-- **Real-time Monitoring** - Live network and DOM analysis
-- **Advanced Interception** - Captures all network activity
-- **Performance APIs** - Uses browser's built-in metrics
-- **Visual Effects Engine** - Custom animation system
+# Production build
+npm run build
 
-### Privacy & Security:
-- **🔒 Your Data Stays Private** - Nothing leaves your browser
-- **🛡️ No Tracking** - We don't collect any personal information  
-- **💾 Local Storage Only** - All analysis happens on your machine
-- **🔍 Open Source** - Full transparency in how it works
+# Run tests
+npm test
+```
 
-## 🤝 Community & Support
+### Project Structure
 
-### Get Help
-- **📖 Built-in Help** - Click the ❓ button in the extension
-- **💬 GitHub Issues** - Report bugs or request features
-- **📧 Email Support** - We're here to help you succeed!
-- **🎥 Video Tutorials** - Learn with step-by-step guides
+```
+dr-dom/
+├── manifest.json           # Extension manifest
+├── background/            # Service worker scripts
+├── content-scripts/       # Page injection scripts
+│   ├── live-capture.js   # Main capture engine
+│   ├── security-scanner.js # Security analysis
+│   └── cookie-analyzer.js # Cookie compliance
+├── popup/                 # Extension popup UI
+│   ├── advanced-popup.html
+│   ├── advanced-popup-fixed.js
+│   └── advanced-popup-responsive.css
+├── utils/                 # Utility functions
+│   └── har-export.js     # Export functionality
+└── dist/                  # Built extensions
+    ├── chrome/
+    └── firefox/
+```
 
-### Contribute
-- **🐛 Report Bugs** - Help us make Dr. DOM better
-- **💡 Suggest Features** - What would make your investigations more fun?
-- **📝 Improve Docs** - Help others learn
-- **🌟 Spread the Word** - Share with friends who love understanding how things work!
+## 🤝 Contributing
 
-## 🎯 Coming Soon
+We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
 
-### Planned Features:
-- **🔄 Website Comparison** - Compare two sites side-by-side
-- **📱 Mobile Simulator** - Test how sites work on different devices
-- **🤖 AI Assistant** - Get personalized optimization suggestions
-- **🎮 More Games** - Additional fun ways to learn about websites
-- **👥 Team Sharing** - Collaborate on website analysis
-- **📈 Historical Tracking** - See how sites change over time
+### Ways to Contribute
+
+- 🐛 Report bugs and issues
+- 💡 Suggest new features
+- 📝 Improve documentation
+- 🔧 Submit pull requests
+- ⭐ Star the repository
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- Built with Chrome Extension Manifest V3
+- Icons from [Emoji](https://emojipedia.org/)
+- Inspired by the need for web transparency
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/humancto/dr-dom/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/humancto/dr-dom/discussions)
 
 ---
 
-## 🚀 Ready to Become a Web Detective?
+<div align="center">
+  
+**Made with ❤️ for web transparency**
 
-**Install Dr. DOM today and transform your curiosity into superpower insights!**
+[⬆ Back to Top](#-dr-dom---advanced-web-analysis-browser-extension)
 
-Every website has secrets waiting to be discovered. With Dr. DOM, you'll see the web like never before - and have fun doing it!
-
-*Made with ❤️ for curious minds everywhere*
-
----
-
-### 📞 Contact & Links
-
-- **🌐 Website:** [dr-dom.dev](https://dr-dom.dev)
-- **📧 Email:** hello@dr-dom.dev  
-- **🐙 GitHub:** [github.com/dr-dom/extension](https://github.com/dr-dom/extension)
-- **🐦 Twitter:** [@DrDOMExtension](https://twitter.com/DrDOMExtension)
-
-**Star us on GitHub if Dr. DOM makes your web investigations more fun!** ⭐
+</div>
