@@ -18,9 +18,14 @@
   ],
   "background": {
     "scripts": [
-      "background/background.js"
+      "background/background-simplified.js"
     ],
     "persistent": false
+  },
+  "externally_connectable": {
+    "matches": [
+      "<all_urls>"
+    ]
   },
   "content_scripts": [
     {
@@ -28,7 +33,7 @@
         "<all_urls>"
       ],
       "js": [
-        "content-scripts/live-capture.js"
+        "content-scripts/privacy-focused-capture.js"
       ],
       "run_at": "document_start",
       "all_frames": true
@@ -38,20 +43,9 @@
         "<all_urls>"
       ],
       "js": [
-        "lib/dom-utils.js",
-        "content-scripts/error-tracker.js",
-        "content-scripts/performance-monitor.js",
-        "content-scripts/network-monitor.js",
-        "content-scripts/advanced-network-monitor.js",
-        "content-scripts/core-web-vitals-monitor.js",
-        "content-scripts/dom-inspector.js",
-        "content-scripts/coordinator.js",
-        "content-scripts/auto-start.js"
+        "content-scripts/enhanced-tracker-detector.js"
       ],
-      "css": [
-        "content-scripts/inspector-styles.css"
-      ],
-      "run_at": "document_start",
+      "run_at": "document_idle",
       "all_frames": false
     }
   ],

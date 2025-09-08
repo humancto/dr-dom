@@ -2,7 +2,7 @@
   "name": "Dr. DOM Browser Extension",
   "version": "1.0.0",
   "description": "The fun way to understand any website!",
-  "build_date": "2025-09-08T19:03:17.159Z",
+  "build_date": "2025-09-08T19:21:35.971Z",
   "build_mode": "production",
   "browsers": {
     "chrome": "Chrome/Chromium 88+",
