@@ -14,6 +14,7 @@
     scripts: [],
     trackingPixels: [],
     securityIssues: [],
+    cookies: [],
     startTime: performance.now(),
     ready: false,
     lastSaveTime: 0,

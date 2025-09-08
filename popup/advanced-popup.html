@@ -25,6 +25,16 @@
                 <button id="refreshBtn" class="btn btn-primary">
                     <span class="btn-icon">🔄</span>Refresh Data
                 </button>
+                <div class="export-dropdown">
+                    <button id="exportBtn" class="btn btn-secondary">
+                        <span class="btn-icon">💾</span>Export
+                    </button>
+                    <div class="export-menu" id="exportMenu" style="display: none;">
+                        <button class="export-option" data-format="har">📦 Export as HAR</button>
+                        <button class="export-option" data-format="json">📄 Export as JSON</button>
+                        <button class="export-option" data-format="csv">📊 Export as CSV</button>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -330,6 +340,24 @@
                         <div class="tracking-placeholder">No tracking pixels detected</div>
                     </div>
                 </div>
+
+                <div class="cookie-analysis">
+                    <h3>🍪 Cookie Analysis</h3>
+                    <div class="cookie-summary" id="cookieSummary">
+                        <div class="cookie-stats">
+                            <span class="cookie-total">Total: <strong id="cookieTotal">0</strong></span>
+                            <span class="cookie-essential">Essential: <strong id="cookieEssential">0</strong></span>
+                            <span class="cookie-tracking">Tracking: <strong id="cookieTracking">0</strong></span>
+                        </div>
+                        <div class="cookie-compliance" id="cookieCompliance">
+                            <span class="compliance-gdpr">GDPR: <span id="gdprStatus">⏳</span></span>
+                            <span class="compliance-ccpa">CCPA: <span id="ccpaStatus">⏳</span></span>
+                        </div>
+                    </div>
+                    <div class="cookie-risks" id="cookieRisks">
+                        <div class="risks-placeholder">Analyzing cookies...</div>
+                    </div>
+                </div>
             </div>
 
             <!-- APIs Tab -->
@@ -395,6 +423,7 @@
         </div>
     </div>
 
+    <script src="../utils/har-export.js"></script>
     <script src="advanced-popup-fixed.js"></script>
 </body>
 </html>

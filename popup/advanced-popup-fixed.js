@@ -598,10 +598,30 @@ class DrDOMAdvancedPopup {
       });
     }
 
-    // Export button
+    // Export button and menu
     const exportBtn = document.getElementById('exportBtn');
-    if (exportBtn) {
-      exportBtn.addEventListener('click', () => this.exportReport());
+    const exportMenu = document.getElementById('exportMenu');
+    
+    if (exportBtn && exportMenu) {
+      exportBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        exportMenu.style.display = exportMenu.style.display === 'none' ? 'block' : 'none';
+      });
+      
+      // Close menu when clicking outside
+      document.addEventListener('click', () => {
+        exportMenu.style.display = 'none';
+      });
+      
+      // Handle export options
+      document.querySelectorAll('.export-option').forEach(option => {
+        option.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const format = option.dataset.format;
+          this.exportData(format);
+          exportMenu.style.display = 'none';
+        });
+      });
     }
   }
 
@@ -630,6 +650,36 @@ class DrDOMAdvancedPopup {
     });
   }
 
+  exportData(format) {
+    if (!this.data || Object.keys(this.data).length === 0) {
+      alert('No data to export. Please wait for data to be captured.');
+      return;
+    }
+    
+    try {
+      let filename;
+      switch(format) {
+        case 'har':
+          filename = HARExporter.downloadHAR(this.data);
+          console.log(`📦 Exported HAR file: ${filename}`);
+          break;
+        case 'json':
+          filename = HARExporter.exportToJSON(this.data);
+          console.log(`📄 Exported JSON file: ${filename}`);
+          break;
+        case 'csv':
+          filename = HARExporter.exportToCSV(this.data);
+          console.log(`📊 Exported CSV file: ${filename}`);
+          break;
+        default:
+          console.error('Unknown export format:', format);
+      }
+    } catch (error) {
+      console.error('Export failed:', error);
+      alert('Export failed. Please check the console for details.');
+    }
+  }
+  
   exportReport() {
     const report = {
       url: this.currentTab.url,

@@ -11,7 +11,8 @@
     "debugger",
     "webRequest",
     "webNavigation",
-    "scripting"
+    "scripting",
+    "cookies"
   ],
   
   "host_permissions": [
