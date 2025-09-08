@@ -1,5 +1,5 @@
 /**
- * LIVE ASYNC CAPTURE - Writes data continuously as it happens
+ * LIVE ASYNC CAPTURE - Fixed version with proper XHR/Fetch tracking
  * Runs at document_start and streams data to storage
  */
 
@@ -28,26 +28,39 @@
   
   console.log(`[Dr. DOM Live] 🚀 Starting live capture for ${DOMAIN}`);
 
-  // Tracking pixel patterns
+  // Enhanced tracking pixel patterns with Meta and more
   const TRACKING_PIXELS = {
-    facebook: ['facebook.com/tr', 'connect.facebook.net'],
-    google: ['google-analytics.com', 'googletagmanager.com', 'doubleclick.net'],
-    linkedin: ['px.ads.linkedin.com'],
-    twitter: ['analytics.twitter.com'],
-    tiktok: ['analytics.tiktok.com'],
-    pinterest: ['ct.pinterest.com'],
-    amazon: ['amazon-adsystem.com'],
-    hotjar: ['static.hotjar.com'],
-    mixpanel: ['cdn.mxpnl.com', 'api.mixpanel.com'],
-    segment: ['cdn.segment.com'],
-    hubspot: ['js.hs-scripts.com', 'track.hubspot.com']
+    meta: ['facebook.com/tr', 'connect.facebook.net', 'facebook.com/en_US/fbevents.js'],
+    google: ['google-analytics.com', 'googletagmanager.com', 'doubleclick.net', 'google.com/ads', 'googleadservices.com'],
+    linkedin: ['px.ads.linkedin.com', 'linkedin.com/px'],
+    twitter: ['analytics.twitter.com', 't.co/i/adsct'],
+    tiktok: ['analytics.tiktok.com', 'analytics-sg.tiktok.com'],
+    pinterest: ['ct.pinterest.com', 'pinterest.com/v3'],
+    amazon: ['amazon-adsystem.com', 'amazon-adsystem.com/aax2'],
+    hotjar: ['static.hotjar.com', 'script.hotjar.com'],
+    mixpanel: ['cdn.mxpnl.com', 'api.mixpanel.com', 'api-js.mixpanel.com'],
+    segment: ['cdn.segment.com', 'cdn.segment.io'],
+    hubspot: ['js.hs-scripts.com', 'track.hubspot.com', 'js.hsforms.net'],
+    clarity: ['clarity.ms', 'c.clarity.ms'],
+    fullstory: ['fullstory.com/s', 'fullstory.com/rec'],
+    heap: ['heap.io', 'heapanalytics.com', 'cdn.heapanalytics.com']
   };
 
-  // Detect tracking pixels
+  // Detect tracking pixels with better matching
   function detectTrackingPixel(url) {
+    if (!url) return null;
+    
+    const urlLower = url.toLowerCase();
     for (const [platform, patterns] of Object.entries(TRACKING_PIXELS)) {
-      if (patterns.some(p => url.includes(p))) {
-        return { platform, url, timestamp: Date.now() };
+      for (const pattern of patterns) {
+        if (urlLower.includes(pattern.toLowerCase())) {
+          return { 
+            platform, 
+            url, 
+            timestamp: Date.now(),
+            type: 'pixel'
+          };
+        }
       }
     }
     return null;
@@ -141,11 +154,12 @@
     const requestId = Date.now() + '_' + Math.random();
     const startTime = performance.now();
     const [resource, config] = args;
+    const url = resource.toString();
     
     const requestData = {
       id: requestId,
       type: 'fetch',
-      url: resource.toString(),
+      url: url,
       method: config?.method || 'GET',
       startTime,
       timestamp: Date.now(),
@@ -168,19 +182,55 @@
       phase: 'start'
     });
     
-    return originalFetch.apply(this, args).then(response => {
-      requestData.status = response.status;
-      requestData.duration = performance.now() - startTime;
-      requestData.completed = true;
-      
-      // Stream the completion
-      writeUpdate({
-        type: 'request',
-        data: { ...requestData },
-        phase: 'complete'
-      });
-      
-      return response;
+    return originalFetch.apply(this, args)
+      .then(response => {
+        const responseClone = response.clone();
+        
+        requestData.status = response.status;
+        requestData.statusText = response.statusText;
+        requestData.duration = performance.now() - startTime;
+        requestData.completed = true;
+        requestData.responseHeaders = {};
+        
+        // Capture response headers
+        response.headers.forEach((value, key) => {
+          requestData.responseHeaders[key] = value;
+        });
+        
+        // Try to capture response body for API analysis
+        const contentType = response.headers.get('content-type') || '';
+        if (url.includes('/api/') || url.includes('.json') || 
+            contentType.includes('application/json') ||
+            contentType.includes('text/json')) {
+          responseClone.text().then(text => {
+            try {
+              const jsonData = JSON.parse(text);
+              requestData.responseBody = jsonData;
+              requestData.responseSize = text.length;
+              requestData.isAPI = true;
+              
+              // Update in storage immediately for API data
+              writeUpdate({
+                type: 'request',
+                data: { ...requestData },
+                phase: 'response_body'
+              });
+            } catch {
+              if (text.length > 0) {
+                requestData.responseBody = text.substring(0, 1000);
+                requestData.responseSize = text.length;
+              }
+            }
+          }).catch(() => {});
+        }
+        
+        writeUpdate({
+          type: 'request',
+          data: { ...requestData },
+          phase: 'complete'
+        });
+        
+        return response;
     }).catch(error => {
       requestData.error = error.message;
       requestData.duration = performance.now() - startTime;
@@ -212,10 +262,15 @@
   };
   
   XMLHttpRequest.prototype.send = function(body) {
+    if (!this._drDOM) {
+      return XHRSend.apply(this, arguments);
+    }
+    
     const requestData = {
       id: Date.now() + '_' + Math.random(),
       type: 'xhr',
       ...this._drDOM,
+      body: body,
       status: 'pending'
     };
     
@@ -225,27 +280,50 @@
     const pixel = detectTrackingPixel(requestData.url);
     if (pixel) {
       window.__drDOM.trackingPixels.push(pixel);
-      console.log(`[Dr. DOM] 🎯 Tracking pixel detected: ${pixel.platform}`);
+      console.log(`[Dr. DOM] 🎯 XHR Tracking detected: ${pixel.platform}`);
     }
     
-    // Stream XHR start
     writeUpdate({
       type: 'request',
       data: requestData,
       phase: 'start'
     });
     
-    this.addEventListener('loadend', function() {
-      requestData.status = this.status;
-      requestData.duration = performance.now() - requestData.startTime;
-      requestData.completed = true;
-      
-      // Stream XHR completion
-      writeUpdate({
-        type: 'request',
-        data: { ...requestData },
-        phase: 'complete'
-      });
+    // Monitor for response
+    this.addEventListener('readystatechange', function() {
+      if (this.readyState === 4) { // Complete
+        requestData.status = this.status;
+        requestData.statusText = this.statusText;
+        requestData.duration = performance.now() - requestData.startTime;
+        requestData.completed = true;
+        requestData.responseHeaders = this.getAllResponseHeaders();
+        
+        // Capture response for API analysis
+        const contentType = this.getResponseHeader('content-type') || '';
+        if (requestData.url.includes('/api/') || 
+            requestData.url.includes('.json') ||
+            contentType.includes('json')) {
+          try {
+            if (this.responseText) {
+              const jsonData = JSON.parse(this.responseText);
+              requestData.responseBody = jsonData;
+              requestData.responseSize = this.responseText.length;
+              requestData.isAPI = true;
+            }
+          } catch {
+            if (this.responseText && this.responseText.length > 0) {
+              requestData.responseBody = this.responseText.substring(0, 1000);
+              requestData.responseSize = this.responseText.length;
+            }
+          }
+        }
+        
+        writeUpdate({
+          type: 'request',
+          data: { ...requestData },
+          phase: 'complete'
+        });
+      }
     });
     
     this.addEventListener('error', function() {

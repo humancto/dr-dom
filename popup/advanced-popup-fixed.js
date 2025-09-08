@@ -129,17 +129,30 @@ class DrDOMAdvancedPopup {
       if (req.type === 'xhr') types.xhr++;
       else if (req.type === 'fetch') types.fetch++;
       else if (req.type === 'script' || req.subType === 'script') types.script++;
-      else if (req.type === 'image' || req.subType === 'image') types.image++;
+      else if (req.type === 'image' || req.subType === 'image' || req.subType === 'img') types.image++;
+      else if (req.type === 'resource') {
+        // Check subType for resource types
+        if (req.subType === 'xmlhttprequest') types.xhr++;
+        else if (req.subType === 'fetch') types.fetch++;
+        else types.other++;
+      }
       else types.other++;
     });
     
     const total = requests.length || 1;
     
-    // Update counts
-    this.updateElement('xhr-count', types.xhr, '.xhr-count');
-    this.updateElement('fetch-count', types.fetch, '.fetch-count');
-    this.updateElement('script-count', types.script, '.script-count');
-    this.updateElement('image-count', types.image, '.image-count');
+    console.log('Request types:', types, 'Total:', requests.length);
+    
+    // Update counts - use direct selectors
+    const xhrElement = document.querySelector('.xhr-count');
+    const fetchElement = document.querySelector('.fetch-count');
+    const scriptElement = document.querySelector('.script-count');
+    const imageElement = document.querySelector('.image-count');
+    
+    if (xhrElement) xhrElement.textContent = types.xhr;
+    if (fetchElement) fetchElement.textContent = types.fetch;
+    if (scriptElement) scriptElement.textContent = types.script;
+    if (imageElement) imageElement.textContent = types.image;
     
     // Update bars
     this.updateBar('.request-type-fill.xhr', (types.xhr / total) * 100);
@@ -421,16 +434,19 @@ class DrDOMAdvancedPopup {
   updateAPIAnalysis(data) {
     const requests = data.requests || [];
     
-    // Find API endpoints with responses
+    // Find all XHR/Fetch requests as potential APIs
     const apis = requests.filter(req => {
+      // Include all XHR and Fetch requests
+      if (req.type === 'xhr' || req.type === 'fetch') {
+        return true;
+      }
+      // Also include obvious API URLs
       const url = req.url || '';
-      const isAPI = url.includes('/api/') || 
+      return url.includes('/api/') || 
              url.includes('.json') || 
              url.includes('/v1/') || 
              url.includes('/v2/') ||
-             url.includes('/graphql') ||
-             (req.type === 'fetch' || req.type === 'xhr');
-      return isAPI && req.status >= 200 && req.status < 300;
+             url.includes('/graphql');
     });
     
     // Unique endpoints
