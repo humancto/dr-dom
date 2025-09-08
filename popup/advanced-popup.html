@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dr. DOM - Advanced Web Analysis</title>
-    <link rel="stylesheet" href="advanced-popup.css">
+    <link rel="stylesheet" href="advanced-popup-responsive.css">
 </head>
 <body>
     <div class="dr-dom-container">
@@ -56,6 +56,20 @@
                 <div class="stat-content">
                     <div class="stat-number" id="errorCount">0</div>
                     <div class="stat-label">Errors</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🛡️</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="safetyScore">--</div>
+                    <div class="stat-label">Safety Score</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="trackingCount">0</div>
+                    <div class="stat-label">Trackers</div>
                 </div>
             </div>
         </div>
@@ -307,6 +321,13 @@
                     <h3>👁️ Privacy Analysis</h3>
                     <div class="privacy-issues" id="privacyIssuesList">
                         <div class="privacy-placeholder">No privacy concerns detected</div>
+                    </div>
+                </div>
+
+                <div class="tracking-pixels">
+                    <h3>🎯 Tracking Pixels Detected</h3>
+                    <div class="tracking-list" id="trackingPixelsList">
+                        <div class="tracking-placeholder">No tracking pixels detected</div>
                     </div>
                 </div>
             </div>
