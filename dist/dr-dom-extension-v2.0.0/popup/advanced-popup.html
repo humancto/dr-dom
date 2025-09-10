@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. DOM - Advanced Web Analysis</title>
+    <link rel="stylesheet" href="advanced-popup-responsive.css">
+</head>
+<body>
+    <div class="dr-dom-container">
+        <!-- Header with controls -->
+        <div class="dr-dom-header">
+            <div class="dr-dom-logo">
+                <div class="logo-icon">🔍</div>
+                <div class="logo-text">
+                    <div class="logo-title">Dr. DOM</div>
+                    <div class="logo-subtitle">Advanced Web Analysis</div>
+                </div>
+            </div>
+            <div class="header-controls">
+                <div class="status-indicator active" id="statusIndicator">
+                    <div class="status-dot"></div>
+                    <span>🔴 Live Monitoring</span>
+                </div>
+                <button id="refreshBtn" class="btn btn-primary">
+                    <span class="btn-icon">🔄</span>Refresh Data
+                </button>
+                <div class="export-dropdown">
+                    <button id="exportBtn" class="btn btn-secondary">
+                        <span class="btn-icon">💾</span>Export
+                    </button>
+                    <div class="export-menu" id="exportMenu" style="display: none;">
+                        <button class="export-option" data-format="har">📦 Export as HAR</button>
+                        <button class="export-option" data-format="json">📄 Export as JSON</button>
+                        <button class="export-option" data-format="csv">📊 Export as CSV</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Stats Overview -->
+        <div class="quick-stats">
+            <div class="stat-card">
+                <div class="stat-icon">🌐</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="requestCount">0</div>
+                    <div class="stat-label">Requests</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🏆</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="performanceScore">--</div>
+                    <div class="stat-label">Performance</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="avgResponseTime">--</div>
+                    <div class="stat-label">Avg Time</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🐛</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="errorCount">0</div>
+                    <div class="stat-label">Errors</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🛡️</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="safetyScore">--</div>
+                    <div class="stat-label">Safety Score</div>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🎯</div>
+                <div class="stat-content">
+                    <div class="stat-number" id="trackingCount">0</div>
+                    <div class="stat-label">Trackers</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Navigation Tabs -->
+        <div class="tab-navigation">
+            <button class="tab-btn active" data-tab="overview">📊 Overview</button>
+            <button class="tab-btn" data-tab="requests">🌐 Requests</button>
+            <button class="tab-btn" data-tab="performance">⚡ Performance</button>
+            <button class="tab-btn" data-tab="security">🔒 Security & Privacy</button>
+        </div>
+
+        <!-- Tab Content Areas -->
+        <div class="tab-content">
+            <!-- Overview Tab -->
+            <div id="overview-tab" class="tab-panel active">
+                <div class="overview-grid">
+                    <!-- Request Distribution -->
+                    <div class="overview-card">
+                        <h3>📈 Request Distribution</h3>
+                        <div class="request-types" id="requestTypes">
+                            <div class="request-type-item">
+                                <div class="request-type-bar">
+                                    <div class="request-type-fill xhr" style="width: 0%"></div>
+                                </div>
+                                <div class="request-type-label">XHR: <span class="xhr-count">0</span></div>
+                            </div>
+                            <div class="request-type-item">
+                                <div class="request-type-bar">
+                                    <div class="request-type-fill fetch" style="width: 0%"></div>
+                                </div>
+                                <div class="request-type-label">Fetch: <span class="fetch-count">0</span></div>
+                            </div>
+                            <div class="request-type-item">
+                                <div class="request-type-bar">
+                                    <div class="request-type-fill script" style="width: 0%"></div>
+                                </div>
+                                <div class="request-type-label">Scripts: <span class="script-count">0</span></div>
+                            </div>
+                            <div class="request-type-item">
+                                <div class="request-type-bar">
+                                    <div class="request-type-fill image" style="width: 0%"></div>
+                                </div>
+                                <div class="request-type-label">Images: <span class="image-count">0</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Top Domains -->
+                    <div class="overview-card">
+                        <h3>🌍 Top Domains</h3>
+                        <div class="top-domains" id="topDomains">
+                            <div class="domain-placeholder">No requests yet</div>
+                        </div>
+                    </div>
+
+                    <!-- Data Transfer -->
+                    <div class="overview-card">
+                        <h3>📊 Data Transfer</h3>
+                        <div class="data-transfer">
+                            <div class="transfer-item">
+                                <div class="transfer-icon">📤</div>
+                                <div class="transfer-info">
+                                    <div class="transfer-amount" id="dataSent">0 B</div>
+                                    <div class="transfer-label">Sent</div>
+                                </div>
+                            </div>
+                            <div class="transfer-item">
+                                <div class="transfer-icon">📥</div>
+                                <div class="transfer-info">
+                                    <div class="transfer-amount" id="dataReceived">0 B</div>
+                                    <div class="transfer-label">Received</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity Stream -->
+                <div class="activity-section">
+                    <h3>🎬 Live Activity Stream</h3>
+                    <div class="activity-stream" id="activityStream">
+                        <div class="activity-placeholder">Start analysis to see live activity...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Requests Tab -->
+            <div id="requests-tab" class="tab-panel">
+                <div class="requests-header">
+                    <div class="requests-controls">
+                        <input type="text" id="requestSearch" placeholder="🔍 Search requests..." class="search-input">
+                        <select id="requestFilter" class="filter-select">
+                            <option value="all">All Requests</option>
+                            <option value="xhr">XHR Only</option>
+                            <option value="fetch">Fetch Only</option>
+                            <option value="failed">Failed Only</option>
+                            <option value="slow">Slow (>2s)</option>
+                            <option value="3rd-party">3rd Party</option>
+                        </select>
+                        <button id="clearRequests" class="btn btn-secondary">Clear</button>
+                    </div>
+                    <div class="requests-summary" id="requestsSummary">
+                        Showing 0 requests
+                    </div>
+                </div>
+                
+                <div class="requests-table-container">
+                    <table class="requests-table" id="requestsTable">
+                        <thead>
+                            <tr>
+                                <th class="sortable" data-sort="method">Method</th>
+                                <th class="sortable" data-sort="url">URL</th>
+                                <th class="sortable" data-sort="status">Status</th>
+                                <th class="sortable" data-sort="duration">Time</th>
+                                <th class="sortable" data-sort="size">Size</th>
+                                <th class="sortable" data-sort="type">Type</th>
+                            </tr>
+                        </thead>
+                        <tbody id="requestsTableBody">
+                            <tr class="no-requests">
+                                <td colspan="6">No requests captured yet</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Performance Tab -->
+            <div id="performance-tab" class="tab-panel">
+                <div class="performance-overview">
+                    <h3>📈 Performance Metrics</h3>
+                    <div class="performance-cards">
+                        <div class="perf-card">
+                            <div class="perf-icon">⚡</div>
+                            <div class="perf-content">
+                                <div class="perf-value" id="avgResponseTimeDetailed">--</div>
+                                <div class="perf-label">Average Response Time</div>
+                            </div>
+                        </div>
+                        <div class="perf-card">
+                            <div class="perf-icon">🏃</div>
+                            <div class="perf-content">
+                                <div class="perf-value" id="fastestRequest">--</div>
+                                <div class="perf-label">Fastest Request</div>
+                            </div>
+                        </div>
+                        <div class="perf-card">
+                            <div class="perf-icon">🐌</div>
+                            <div class="perf-content">
+                                <div class="perf-value" id="slowestRequest">--</div>
+                                <div class="perf-label">Slowest Request</div>
+                            </div>
+                        </div>
+                        <div class="perf-card">
+                            <div class="perf-icon">📊</div>
+                            <div class="perf-content">
+                                <div class="perf-value" id="totalDataTransfer">--</div>
+                                <div class="perf-label">Total Data Transfer</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="performance-insights">
+                    <h3>💡 Performance Insights</h3>
+                    <div class="insights-container" id="performanceInsights">
+                        <div class="insight-placeholder">Start analysis to generate insights...</div>
+                    </div>
+                </div>
+
+                <div class="slow-requests-section">
+                    <h3>🐌 Slowest Requests</h3>
+                    <div class="slow-requests-list" id="slowRequestsList">
+                        <div class="slow-requests-placeholder">No slow requests detected</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Security Tab -->
+            <div id="security-tab" class="tab-panel">
+                <div class="security-overview">
+                    <h3>🔒 Security Analysis</h3>
+                    <div class="security-metrics">
+                        <div class="security-metric">
+                            <div class="security-icon secure">🔒</div>
+                            <div class="security-info">
+                                <div class="security-value" id="httpsRequests">0</div>
+                                <div class="security-label">HTTPS Requests</div>
+                            </div>
+                        </div>
+                        <div class="security-metric">
+                            <div class="security-icon insecure">🔓</div>
+                            <div class="security-info">
+                                <div class="security-value" id="httpRequests">0</div>
+                                <div class="security-label">HTTP Requests</div>
+                            </div>
+                        </div>
+                        <div class="security-metric">
+                            <div class="security-icon warning">⚠️</div>
+                            <div class="security-info">
+                                <div class="security-value" id="mixedContent">0</div>
+                                <div class="security-label">Mixed Content</div>
+                            </div>
+                        </div>
+                        <div class="security-metric">
+                            <div class="security-icon third-party">🌐</div>
+                            <div class="security-info">
+                                <div class="security-value" id="thirdPartyRequests">0</div>
+                                <div class="security-label">3rd Party</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="security-issues">
+                    <h3>🚨 Security Issues</h3>
+                    <div class="issues-list" id="securityIssuesList">
+                        <div class="issues-placeholder">No security issues detected</div>
+                    </div>
+                </div>
+
+                <div class="privacy-analysis">
+                    <h3>👁️ Privacy Analysis</h3>
+                    <div class="privacy-issues" id="privacyIssuesList">
+                        <div class="privacy-placeholder">No privacy concerns detected</div>
+                    </div>
+                </div>
+
+                <div class="tracking-pixels">
+                    <h3>🎯 Tracking Pixels Detected</h3>
+                    <div class="tracking-list" id="trackingPixelsList">
+                        <div class="tracking-placeholder">No tracking pixels detected</div>
+                    </div>
+                </div>
+
+                <div class="cookie-analysis">
+                    <h3>🍪 Cookie Analysis</h3>
+                    <div class="cookie-summary" id="cookieSummary">
+                        <div class="cookie-stats">
+                            <span class="cookie-total">Total: <strong id="cookieTotal">0</strong></span>
+                            <span class="cookie-essential">Essential: <strong id="cookieEssential">0</strong></span>
+                            <span class="cookie-tracking">Tracking: <strong id="cookieTracking">0</strong></span>
+                        </div>
+                        <div class="cookie-compliance" id="cookieCompliance">
+                            <span class="compliance-gdpr">GDPR: <span id="gdprStatus">⏳</span></span>
+                            <span class="compliance-ccpa">CCPA: <span id="ccpaStatus">⏳</span></span>
+                        </div>
+                    </div>
+                    <div class="cookie-risks" id="cookieRisks">
+                        <div class="risks-placeholder">Analyzing cookies...</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- APIs Tab -->
+            <div id="apis-tab" class="tab-panel">
+                <div class="apis-overview">
+                    <h3>🔌 Discovered APIs</h3>
+                    <div class="apis-stats">
+                        <div class="api-stat">
+                            <div class="api-stat-value" id="uniqueEndpoints">0</div>
+                            <div class="api-stat-label">Unique Endpoints</div>
+                        </div>
+                        <div class="api-stat">
+                            <div class="api-stat-value" id="apiDomains">0</div>
+                            <div class="api-stat-label">API Domains</div>
+                        </div>
+                        <div class="api-stat">
+                            <div class="api-stat-value" id="graphqlQueries">0</div>
+                            <div class="api-stat-label">GraphQL Queries</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="top-endpoints">
+                    <h3>🏆 Top Endpoints</h3>
+                    <div class="endpoints-list" id="topEndpointsList">
+                        <div class="endpoints-placeholder">No API endpoints discovered yet</div>
+                    </div>
+                </div>
+
+                <div class="api-schemas">
+                    <h3>📋 Response Schemas</h3>
+                    <div class="schemas-list" id="apiSchemasList">
+                        <div class="schemas-placeholder">Start analysis to discover API schemas...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Removed non-functional action buttons - Export is in header -->
+
+        <!-- Request Detail Modal -->
+        <div id="requestDetailModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Request Details</h3>
+                    <button class="modal-close" id="closeModal">&times;</button>
+                </div>
+                <div class="modal-body" id="requestDetailContent">
+                    <!-- Request details will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup-simple.js"></script>
+</body>
+</html>

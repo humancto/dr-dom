@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cookie Cleaner Test Page</title>
+    <style>
+        body {
+            font-family: monospace;
+            padding: 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        button {
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        pre {
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🍪 Cookie Cleaner Test Page</h1>
+    
+    <h2>Create Test Data:</h2>
+    <div>
+        <button onclick="createTestCookies()">Create Test Cookies</button>
+        <button onclick="createTestStorage()">Create Test Storage</button>
+        <button onclick="showAllData()">Show All Data</button>
+    </div>
+    
+    <h2>Current Data:</h2>
+    <pre id="output">Click "Show All Data" to see cookies and storage...</pre>
+    
+    <script>
+        function createTestCookies() {
+            // Create various types of cookies
+            document.cookie = "_ga=GA1.2.123456789.1234567890; path=/";
+            document.cookie = "_gid=GA1.2.987654321.0987654321; path=/";
+            document.cookie = "fbm_123=test_facebook_cookie; path=/";
+            document.cookie = "session_id=abc123xyz; path=/";
+            document.cookie = "user_preferences=theme_dark; path=/";
+            document.cookie = "shopping_cart=item1,item2; path=/";
+            document.cookie = "_clck=microsoft_tracking; path=/";
+            document.cookie = "normal_cookie=just_a_regular_cookie; path=/";
+            
+            showAllData();
+            alert('Created 8 test cookies (mix of tracking and essential)');
+        }
+        
+        function createTestStorage() {
+            // Create localStorage items
+            localStorage.setItem('_ga_storage', 'google_analytics_data');
+            localStorage.setItem('user_settings', JSON.stringify({theme: 'dark', lang: 'en'}));
+            localStorage.setItem('amplitude_deviceId', 'device123');
+            localStorage.setItem('app_cache', 'cached_data');
+            
+            // Create sessionStorage items
+            sessionStorage.setItem('temp_data', 'temporary_session_data');
+            sessionStorage.setItem('form_draft', 'unsaved_form_data');
+            sessionStorage.setItem('mixpanel_distinct_id', 'user_abc123');
+            
+            showAllData();
+            alert('Created localStorage (4 items) and sessionStorage (3 items)');
+        }
+        
+        function showAllData() {
+            let output = '=== COOKIES ===\n';
+            
+            // Show cookies
+            const cookies = document.cookie.split(';');
+            if (cookies[0]) {
+                cookies.forEach(cookie => {
+                    const [name, value] = cookie.trim().split('=');
+                    if (name) {
+                        output += `🍪 ${name}: ${value || '(empty)'}\n`;
+                    }
+                });
+            } else {
+                output += '(No cookies)\n';
+            }
+            
+            // Show localStorage
+            output += '\n=== LOCAL STORAGE ===\n';
+            if (localStorage.length > 0) {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const key = localStorage.key(i);
+                    output += `📦 ${key}: ${localStorage.getItem(key)}\n`;
+                }
+            } else {
+                output += '(Empty)\n';
+            }
+            
+            // Show sessionStorage
+            output += '\n=== SESSION STORAGE ===\n';
+            if (sessionStorage.length > 0) {
+                for (let i = 0; i < sessionStorage.length; i++) {
+                    const key = sessionStorage.key(i);
+                    output += `⏱️ ${key}: ${sessionStorage.getItem(key)}\n`;
+                }
+            } else {
+                output += '(Empty)\n';
+            }
+            
+            document.getElementById('output').textContent = output;
+        }
+        
+        // Auto-show data on load
+        window.onload = showAllData;
+        
+        // Refresh data every 2 seconds
+        setInterval(showAllData, 2000);
+    </script>
+    
+    <hr>
+    <h2>Testing Instructions:</h2>
+    <ol>
+        <li>Click "Create Test Cookies" to add various cookies</li>
+        <li>Click "Create Test Storage" to add localStorage and sessionStorage items</li>
+        <li>Open the Dr. DOM extension popup</li>
+        <li>Go to the "Privacy Suite" tab</li>
+        <li>Try the different cleaning buttons:
+            <ul>
+                <li>🗑️ Clean All Cookies - Should remove all 8 cookies</li>
+                <li>🎯 Clean Tracking Cookies - Should remove _ga, _gid, fbm_, _clck</li>
+                <li>📦 Clean Local Storage - Should clear all 4 items</li>
+                <li>⏱️ Clean Session Storage - Should clear all 3 items</li>
+                <li>👁️ Show All Cookies - Should list all current cookies</li>
+            </ul>
+        </li>
+        <li>Watch this page update to see what was removed</li>
+    </ol>
+</body>
+</html>

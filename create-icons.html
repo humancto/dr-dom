@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Generate Dr. DOM Icons</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .icon-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .icon-box {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        canvas {
+            border: 1px solid #ddd;
+            display: block;
+            margin: 10px auto;
+        }
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background: #5a67d8;
+        }
+    </style>
+</head>
+<body>
+    <h1>Dr. DOM Icon Generator</h1>
+    <p>Click each button to download the icon in that size. Save them as icon-16.png, icon-32.png, etc.</p>
+    
+    <div class="icon-container">
+        <!-- 16x16 -->
+        <div class="icon-box">
+            <h3>16x16</h3>
+            <canvas id="canvas16" width="16" height="16"></canvas>
+            <button onclick="downloadIcon(16)">Download icon-16.png</button>
+        </div>
+        
+        <!-- 32x32 -->
+        <div class="icon-box">
+            <h3>32x32</h3>
+            <canvas id="canvas32" width="32" height="32"></canvas>
+            <button onclick="downloadIcon(32)">Download icon-32.png</button>
+        </div>
+        
+        <!-- 48x48 -->
+        <div class="icon-box">
+            <h3>48x48</h3>
+            <canvas id="canvas48" width="48" height="48"></canvas>
+            <button onclick="downloadIcon(48)">Download icon-48.png</button>
+        </div>
+        
+        <!-- 128x128 -->
+        <div class="icon-box">
+            <h3>128x128</h3>
+            <canvas id="canvas128" width="128" height="128"></canvas>
+            <button onclick="downloadIcon(128)">Download icon-128.png</button>
+        </div>
+    </div>
+    
+    <script>
+        // Draw icon on each canvas
+        const sizes = [16, 32, 48, 128];
+        
+        function drawIcon(size) {
+            const canvas = document.getElementById(`canvas${size}`);
+            const ctx = canvas.getContext('2d');
+            
+            // Scale factor
+            const scale = size / 128;
+            
+            // Background gradient
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(1, '#764ba2');
+            
+            // Draw rounded rectangle background
+            ctx.fillStyle = gradient;
+            if (size <= 32) {
+                // Simple circle for small sizes
+                ctx.beginPath();
+                ctx.arc(size/2, size/2, size/2, 0, Math.PI * 2);
+                ctx.fill();
+            } else {
+                // Rounded rectangle for larger sizes
+                const radius = size * 0.15;
+                ctx.beginPath();
+                ctx.moveTo(radius, 0);
+                ctx.lineTo(size - radius, 0);
+                ctx.quadraticCurveTo(size, 0, size, radius);
+                ctx.lineTo(size, size - radius);
+                ctx.quadraticCurveTo(size, size, size - radius, size);
+                ctx.lineTo(radius, size);
+                ctx.quadraticCurveTo(0, size, 0, size - radius);
+                ctx.lineTo(0, radius);
+                ctx.quadraticCurveTo(0, 0, radius, 0);
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            // Draw magnifying glass (simplified for small sizes)
+            ctx.strokeStyle = 'white';
+            ctx.lineWidth = size <= 32 ? 2 : 3 * scale;
+            ctx.lineCap = 'round';
+            
+            if (size >= 48) {
+                // Full magnifying glass for larger icons
+                // Glass circle
+                ctx.beginPath();
+                ctx.arc(size * 0.35, size * 0.35, size * 0.18, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                // Handle
+                ctx.beginPath();
+                ctx.moveTo(size * 0.47, size * 0.47);
+                ctx.lineTo(size * 0.65, size * 0.65);
+                ctx.stroke();
+                
+                // Shield inside glass
+                ctx.fillStyle = '#10b981';
+                ctx.beginPath();
+                ctx.moveTo(size * 0.35, size * 0.28);
+                ctx.lineTo(size * 0.41, size * 0.31);
+                ctx.lineTo(size * 0.41, size * 0.39);
+                ctx.lineTo(size * 0.35, size * 0.42);
+                ctx.lineTo(size * 0.29, size * 0.39);
+                ctx.lineTo(size * 0.29, size * 0.31);
+                ctx.closePath();
+                ctx.fill();
+                
+                // Dollar sign
+                ctx.fillStyle = 'white';
+                ctx.font = `bold ${size * 0.2}px Arial`;
+                ctx.fillText('$', size * 0.55, size * 0.75);
+                
+            } else if (size === 32) {
+                // Simplified for 32x32
+                // Just magnifying glass
+                ctx.beginPath();
+                ctx.arc(11, 11, 6, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(15, 15);
+                ctx.lineTo(20, 20);
+                ctx.stroke();
+                
+                // Small dollar sign
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 10px Arial';
+                ctx.fillText('$', 18, 26);
+                
+            } else {
+                // Ultra simplified for 16x16
+                // Just a magnifying glass icon
+                ctx.beginPath();
+                ctx.arc(6, 6, 3, 0, Math.PI * 2);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(8, 8);
+                ctx.lineTo(11, 11);
+                ctx.stroke();
+            }
+        }
+        
+        // Draw all icons on load
+        sizes.forEach(size => drawIcon(size));
+        
+        // Download function
+        function downloadIcon(size) {
+            const canvas = document.getElementById(`canvas${size}`);
+            const link = document.createElement('a');
+            link.download = `icon-${size}.png`;
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+{
+  "manifest_version": 3,
+  "name": "Dr. DOM - Privacy Game & Inspector",
+  "version": "2.0.0",
+  "description": "🎮 Turn web privacy into a game! See trackers, get roasted reviews, watch your privacy erode in real-time. 100% real data, 0% boring!",
+  "permissions": [
+    "activeTab",
+    "storage",
+    "webRequest",
+    "webNavigation",
+    "cookies"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "background/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": [
+        "content-scripts/ui-coordinator.js",
+        "content-scripts/privacy-shield.js",
+        "content-scripts/enhanced-tracker-detection.js",
+        "content-scripts/urlhaus-local.js",
+        "content-scripts/privacy-timeline.js",
+        "content-scripts/fingerprint-protection.js",
+        "content-scripts/privacy-scorer.js",
+        "content-scripts/gdpr-ccpa-checker.js",
+        "content-scripts/honest-reviews.js",
+        "content-scripts/silly-metrics.js",
+        "content-scripts/emoji-scores.js",
+        "content-scripts/money-trail-game.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_popup": "popup/advanced-popup.html",
+    "default_title": "Dr. DOM - See Your Privacy Score!",
+    "default_icon": {
+      "16": "assets/icon-16.png",
+      "32": "assets/icon-32.png",
+      "48": "assets/icon-48.png",
+      "128": "assets/icon-128.png"
+    }
+  },
+  "icons": {
+    "16": "assets/icon-16.png",
+    "32": "assets/icon-32.png",
+    "48": "assets/icon-48.png",
+    "128": "assets/icon-128.png"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "data/*",
+        "assets/*"
+      ],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

@@ -52,11 +52,16 @@ class DrDOMAdvancedPopup {
       const domain = new URL(this.currentTab.url).hostname;
       const storageKey = `drDOM_${domain}`;
       
-      chrome.storage.local.get([storageKey, `${storageKey}_meta`], (result) => {
+      chrome.storage.local.get([storageKey, `${storageKey}_meta`, `${storageKey}_threats`], (result) => {
         const data = result[storageKey];
         const meta = result[`${storageKey}_meta`];
+        const threats = result[`${storageKey}_threats`];
         
         console.log(`📊 Data for ${domain}:`, data ? `${data.requests?.length || 0} requests` : 'No data');
+        
+        if (threats && threats.threats && threats.threats.length > 0) {
+          this.displayMalwareAlert(threats);
+        }
         
         if (data) {
           this.data = data;
@@ -73,6 +78,48 @@ class DrDOMAdvancedPopup {
       });
     } catch (error) {
       console.error('Error fetching data:', error);
+    }
+  }
+  
+  displayMalwareAlert(threatData) {
+    const alertDiv = document.getElementById('malwareAlert');
+    const detailsDiv = document.getElementById('malwareDetails');
+    
+    // Only show malware alert for CRITICAL threats (exact URL matches)
+    // Skip domain-only matches which often have false positives
+    const critical = threatData.threats ? threatData.threats.filter(t => 
+      t.severity === 'critical' && t.type === 'exact_match'
+    ) : [];
+    
+    // Only display if we have actual critical threats
+    if (alertDiv && detailsDiv && critical.length > 0) {
+      alertDiv.style.display = 'block';
+      
+      const high = threatData.threats.filter(t => t.severity === 'high' && t.type === 'exact_match');
+      
+      let detailsHTML = '';
+      
+      if (critical.length > 0) {
+        detailsHTML += `<div style="margin-bottom: 10px;">
+          <strong>⚠️ CRITICAL THREATS (${critical.length}):</strong><br>
+          ${critical.slice(0, 3).map(t => `• ${t.message}`).join('<br>')}
+        </div>`;
+      }
+      
+      if (high.length > 0) {
+        detailsHTML += `<div>
+          <strong>⚠️ HIGH RISK (${high.length}):</strong><br>
+          ${high.slice(0, 2).map(t => `• ${t.message}`).join('<br>')}
+        </div>`;
+      }
+      
+      if (threatData.summary) {
+        detailsHTML += `<div style="margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3);">
+          <strong>Summary:</strong> ${threatData.summary.total} total threats detected
+        </div>`;
+      }
+      
+      detailsDiv.innerHTML = detailsHTML;
     }
   }
 
@@ -303,19 +350,24 @@ class DrDOMAdvancedPopup {
     }
     
     if (requests.length > 0) {
-      tbody.innerHTML = requests.map(req => `
-        <tr>
-          <td><span class="method-badge ${req.method?.toLowerCase()}">${req.method || req.type || 'GET'}</span></td>
-          <td class="url-cell" title="${req.url}">${this.truncateUrl(req.url, 40)}</td>
-          <td><span class="status-badge status-${this.getStatusClass(req.status)}">${req.status || '--'}</span></td>
-          <td>${req.duration ? Math.round(req.duration) + 'ms' : '--'}</td>
-          <td>${req.size ? this.formatBytes(req.size) : '--'}</td>
-          <td>${req.type || '--'}</td>
-          <td><button class="btn-small" onclick="viewRequestDetails('${req.id}')">View</button></td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = requests.map(req => {
+        // Ensure we use the HTTP method, not the resource type
+        const httpMethod = req.method || 'GET';
+        const resourceType = req.type || 'unknown';
+        
+        return `
+          <tr>
+            <td><span class="method-badge ${httpMethod.toLowerCase()}">${httpMethod.toUpperCase()}</span></td>
+            <td class="url-cell" title="${req.url}">${this.truncateUrl(req.url, 40)}</td>
+            <td><span class="status-badge status-${this.getStatusClass(req.status)}">${req.status || '--'}</span></td>
+            <td>${req.duration ? Math.round(req.duration) + 'ms' : '--'}</td>
+            <td>${req.size ? this.formatBytes(req.size) : '--'}</td>
+            <td>${resourceType}</td>
+          </tr>
+        `;
+      }).join('');
     } else {
-      tbody.innerHTML = '<tr class="no-requests"><td colspan="7">No requests captured yet</td></tr>';
+      tbody.innerHTML = '<tr class="no-requests"><td colspan="6">No requests captured yet</td></tr>';
     }
   }
 
@@ -359,12 +411,25 @@ class DrDOMAdvancedPopup {
 
   updateSecurityAnalysis(data) {
     const requests = data.requests || [];
-    const trackingPixels = data.trackingPixels || [];
+    let trackingPixels = data.trackingPixels || [];
+    
+    // Deduplicate tracking pixels by URL to match the live tracker count
+    const uniquePixels = new Map();
+    trackingPixels.forEach(pixel => {
+      // Use the URL as the key to deduplicate
+      const key = pixel.url || pixel;
+      if (!uniquePixels.has(key)) {
+        uniquePixels.set(key, pixel);
+      }
+    });
+    trackingPixels = Array.from(uniquePixels.values());
+    
+    console.log(`🎯 [Security Analysis] Deduplicated pixels: ${trackingPixels.length} unique from ${data.trackingPixels?.length || 0} total`);
     
     // Analyze cookies
     this.analyzeCookies();
     
-    let https = 0, http = 0, mixed = 0, thirdParty = 0;
+    let https = 0, http = 0, thirdParty = 0;
     const currentDomain = this.currentTab ? new URL(this.currentTab.url).hostname : '';
     
     requests.forEach(req => {
@@ -381,31 +446,8 @@ class DrDOMAdvancedPopup {
     
     this.updateElement('httpsRequests', https);
     this.updateElement('httpRequests', http);
-    this.updateElement('mixedContent', mixed);
     this.updateElement('thirdPartyRequests', thirdParty);
     
-    // Security issues
-    const issues = [];
-    if (http > 0) {
-      issues.push({
-        severity: 'warning',
-        message: `${http} insecure HTTP requests detected`
-      });
-    }
-    
-    const issuesList = document.getElementById('securityIssuesList');
-    if (issuesList) {
-      if (issues.length > 0) {
-        issuesList.innerHTML = issues.map(issue => `
-          <div class="security-issue ${issue.severity}">
-            <span class="issue-icon">⚠️</span>
-            <span class="issue-message">${issue.message}</span>
-          </div>
-        `).join('');
-      } else {
-        issuesList.innerHTML = '<div class="issues-placeholder">No security issues detected</div>';
-      }
-    }
     
     // Display tracking pixels
     const trackingList = document.getElementById('trackingPixelsList');
@@ -539,30 +581,104 @@ class DrDOMAdvancedPopup {
     const insights = [];
     const requests = data.requests || [];
     
+    // Always show total requests and average time
+    if (requests.length > 0) {
+      const avgTime = this.calculateAverageResponseTime(requests);
+      
+      // Performance grade based on average time
+      if (avgTime < 200) {
+        insights.push({
+          type: 'success',
+          message: `Excellent performance! Average response time: ${Math.round(avgTime)}ms`
+        });
+      } else if (avgTime < 500) {
+        insights.push({
+          type: 'info',
+          message: `Good performance. Average response time: ${Math.round(avgTime)}ms`
+        });
+      } else if (avgTime < 1000) {
+        insights.push({
+          type: 'warning',
+          message: `Moderate performance. Average response time: ${Math.round(avgTime)}ms - Consider optimization`
+        });
+      } else {
+        insights.push({
+          type: 'error',
+          message: `Poor performance! Average response time: ${Math.round(avgTime)}ms - Optimization needed`
+        });
+      }
+    }
+    
     // Check for slow requests
     const slowCount = requests.filter(r => r.duration > 2000).length;
     if (slowCount > 0) {
+      const slowest = Math.max(...requests.filter(r => r.duration).map(r => r.duration));
       insights.push({
         type: 'warning',
-        message: `${slowCount} requests took longer than 2 seconds`
+        message: `${slowCount} slow requests (>2s), slowest: ${Math.round(slowest)}ms`
       });
     }
     
     // Check for failed requests
     const failedCount = requests.filter(r => r.failed || r.status >= 400).length;
     if (failedCount > 0) {
+      const errorTypes = {};
+      requests.filter(r => r.status >= 400).forEach(r => {
+        const code = Math.floor(r.status / 100) * 100;
+        errorTypes[code] = (errorTypes[code] || 0) + 1;
+      });
+      const errorSummary = Object.entries(errorTypes).map(([code, count]) => `${count}x ${code}s`).join(', ');
       insights.push({
         type: 'error',
-        message: `${failedCount} requests failed or returned errors`
+        message: `${failedCount} failed requests (${errorSummary})`
       });
     }
     
     // Check for large resources
-    const largeResources = requests.filter(r => r.size > 1000000).length;
-    if (largeResources > 0) {
+    const largeResources = requests.filter(r => r.size > 1000000);
+    if (largeResources.length > 0) {
+      const totalLargeSize = largeResources.reduce((sum, r) => sum + r.size, 0);
       insights.push({
         type: 'info',
-        message: `${largeResources} resources larger than 1MB detected`
+        message: `${largeResources.length} large resources (>1MB), total: ${this.formatBytes(totalLargeSize)}`
+      });
+    }
+    
+    // Check for too many requests
+    if (requests.length > 100) {
+      insights.push({
+        type: 'warning',
+        message: `High request count (${requests.length}) - Consider bundling or caching`
+      });
+    } else if (requests.length > 50) {
+      insights.push({
+        type: 'info',
+        message: `${requests.length} total requests - Room for optimization`
+      });
+    }
+    
+    // Check for too many domains
+    const domains = new Set(requests.map(r => {
+      try { return new URL(r.url).hostname; } catch { return null; }
+    }).filter(Boolean));
+    if (domains.size > 20) {
+      insights.push({
+        type: 'warning',
+        message: `Requests from ${domains.size} different domains - High third-party dependency`
+      });
+    }
+    
+    // Check cache usage
+    const cachedRequests = requests.filter(r => r.status === 304).length;
+    if (cachedRequests > 0) {
+      insights.push({
+        type: 'success',
+        message: `Good caching: ${cachedRequests} requests served from cache`
+      });
+    } else if (requests.length > 20) {
+      insights.push({
+        type: 'info',
+        message: 'Consider implementing caching for better performance'
       });
     }
     
@@ -571,12 +687,17 @@ class DrDOMAdvancedPopup {
       if (insights.length > 0) {
         container.innerHTML = insights.map(insight => `
           <div class="insight-item ${insight.type}">
-            <span class="insight-icon">${insight.type === 'error' ? '❌' : insight.type === 'warning' ? '⚠️' : 'ℹ️'}</span>
+            <span class="insight-icon">${
+              insight.type === 'error' ? '❌' : 
+              insight.type === 'warning' ? '⚠️' : 
+              insight.type === 'success' ? '✅' :
+              'ℹ️'
+            }</span>
             <span class="insight-message">${insight.message}</span>
           </div>
         `).join('');
       } else {
-        container.innerHTML = '<div class="insight-placeholder">No performance issues detected</div>';
+        container.innerHTML = '<div class="insight-placeholder">Loading performance analysis...</div>';
       }
     }
   }
@@ -656,21 +777,42 @@ class DrDOMAdvancedPopup {
     
     try {
       const url = new URL(this.currentTab.url);
-      const cookies = await chrome.cookies.getAll({ domain: url.hostname });
+      // Get ALL cookies for the current URL (not just domain)
+      const cookies = await chrome.cookies.getAll({ url: this.currentTab.url });
       
-      let essential = 0, tracking = 0;
-      const trackingPatterns = ['_ga', '_gid', 'fbp', 'fbc', '_utm', 'doubleclick'];
+      let essential = 0, tracking = 0, functional = 0;
+      const trackingPatterns = [
+        '_ga', '_gid', '_gat', 'GA1.', // Google Analytics
+        'fbp', 'fbc', '_fbp', // Facebook
+        '_utm', 'utm_', // UTM tracking
+        'doubleclick', '_gcl', // Google Ads
+        '_hjid', '_hj', // Hotjar
+        'mp_', '_mkto', // Mixpanel, Marketo
+        'optimizely', 'segment', // A/B testing
+        '_pinterest', '_twitter', // Social
+        'AnalyticsSession', '_clck', '_clsk' // Various analytics
+      ];
       
       cookies.forEach(cookie => {
-        const isTracking = trackingPatterns.some(p => cookie.name.includes(p));
+        const isTracking = trackingPatterns.some(p => 
+          cookie.name.toLowerCase().includes(p.toLowerCase())
+        );
         if (isTracking) {
           tracking++;
-        } else if (cookie.name.includes('session') || cookie.name.includes('auth')) {
+        } else if (
+          cookie.name.toLowerCase().includes('session') || 
+          cookie.name.toLowerCase().includes('auth') ||
+          cookie.name.toLowerCase().includes('token') ||
+          cookie.name.toLowerCase().includes('csrf')
+        ) {
           essential++;
+        } else {
+          functional++;
         }
       });
       
-      // Update cookie display
+      // Update cookie display with accurate count
+      console.log(`🍪 [Cookie Analysis] Total: ${cookies.length}, Essential: ${essential}, Tracking: ${tracking}, Functional: ${functional}`);
       this.updateElement('cookieTotal', cookies.length);
       this.updateElement('cookieEssential', essential);
       this.updateElement('cookieTracking', tracking);
@@ -731,6 +873,17 @@ class DrDOMAdvancedPopup {
   }
 
   setupEventListeners() {
+    // Dismiss malware alert button
+    const dismissBtn = document.getElementById('dismissMalwareAlert');
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', () => {
+        const alertDiv = document.getElementById('malwareAlert');
+        if (alertDiv) {
+          alertDiv.style.display = 'none';
+        }
+      });
+    }
+    
     // Search and filter functionality
     const searchInput = document.getElementById('requestSearch');
     const filterSelect = document.getElementById('requestFilter');

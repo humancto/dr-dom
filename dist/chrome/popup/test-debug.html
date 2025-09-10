@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Dr. DOM Debug</title>
+  <style>
+    body {
+      width: 400px;
+      padding: 10px;
+      font-family: monospace;
+    }
+    #status {
+      background: #f0f0f0;
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .success { color: green; }
+    .error { color: red; }
+    .data { 
+      background: #e8f4f8;
+      padding: 8px;
+      margin: 5px 0;
+      border-radius: 4px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    button {
+      margin: 5px;
+      padding: 8px 12px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h2>Dr. DOM Debug Console</h2>
+  
+  <div id="status">Checking extension status...</div>
+  
+  <button id="checkStorage">Check Storage</button>
+  <button id="injectScript">Inject Capture Script</button>
+  <button id="clearStorage">Clear Storage</button>
+  <button id="testCapture">Test Capture</button>
+  
+  <div id="output"></div>
+
+  <script>
+    const status = document.getElementById('status');
+    const output = document.getElementById('output');
+    
+    // Check if we're running in extension context
+    if (typeof chrome === 'undefined' || !chrome.tabs) {
+      status.innerHTML = '<div class="error">⚠️ This page must be opened from the extension popup!</div>';
+      output.innerHTML = `
+        <div class="data">
+          <b>How to use this debug page:</b><br>
+          1. Click on the Dr. DOM extension icon<br>
+          2. Right-click anywhere in the popup<br>
+          3. Select "Inspect"<br>
+          4. In DevTools console, type: <code>window.open('test-debug.html')</code><br>
+          <br>
+          OR:<br>
+          <br>
+          Open directly: <code>chrome-extension://[EXTENSION_ID]/popup/test-debug.html</code>
+        </div>
+      `;
+      // Disable all buttons
+      document.querySelectorAll('button').forEach(btn => btn.disabled = true);
+    }
+    
+    // Check current tab
+    async function checkTab() {
+      if (!chrome.tabs) {
+        throw new Error('Chrome tabs API not available');
+      }
+      const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+      status.innerHTML = `<div class="success">Tab: ${tab.url}</div>`;
+      return tab;
+    }
+    
+    // Only set up event listeners if chrome API is available
+    if (typeof chrome !== 'undefined' && chrome.tabs) {
+      // Check storage
+      document.getElementById('checkStorage').addEventListener('click', async () => {
+        const tab = await checkTab();
+      const hostname = new URL(tab.url).hostname;
+      
+      chrome.storage.local.get(null, (items) => {
+        const keys = Object.keys(items);
+        let html = `<div class="data"><b>Storage Keys (${keys.length}):</b><br>`;
+        
+        keys.forEach(key => {
+          const size = JSON.stringify(items[key]).length;
+          html += `${key}: ${size} bytes<br>`;
+          
+          if (key.includes(hostname)) {
+            const data = items[key];
+            html += `<div style="margin-left:20px">`;
+            html += `Requests: ${data.requests?.length || 0}<br>`;
+            html += `Trackers: ${data.trackingPixels?.length || 0}<br>`;
+            html += `Cookies: ${data.cookies?.length || 0}<br>`;
+            html += `</div>`;
+          }
+        });
+        
+        html += '</div>';
+        output.innerHTML = html;
+        
+        // Also check for data for current domain
+        const storageKey = `drDOM_${hostname}`;
+        if (items[storageKey]) {
+          output.innerHTML += `<div class="success">Found data for ${hostname}</div>`;
+        } else {
+          output.innerHTML += `<div class="error">No data for ${hostname}</div>`;
+        }
+      });
+    });
+    
+    // Inject script
+    document.getElementById('injectScript').addEventListener('click', async () => {
+      const tab = await checkTab();
+      
+      try {
+        await chrome.scripting.executeScript({
+          target: { tabId: tab.id },
+          func: () => {
+            console.log('[Dr. DOM] Manual injection test');
+            
+            // Check if capture is already running
+            if (window.__drDOM) {
+              return { 
+                status: 'already_running', 
+                requests: window.__drDOM.requests.length,
+                ready: window.__drDOM.ready 
+              };
+            }
+            
+            // Simple test capture
+            window.__drDOM = { test: true, timestamp: Date.now() };
+            
+            // Try to save to storage
+            const testData = {
+              url: window.location.href,
+              hostname: window.location.hostname,
+              test: true,
+              timestamp: Date.now(),
+              requests: [],
+              trackingPixels: []
+            };
+            
+            chrome.storage.local.set({ 
+              [`drDOM_${window.location.hostname}`]: testData 
+            });
+            
+            return { status: 'injected', hostname: window.location.hostname };
+          }
+        });
+        
+        output.innerHTML = '<div class="success">Script injected! Check storage again.</div>';
+      } catch (error) {
+        output.innerHTML = `<div class="error">Injection failed: ${error.message}</div>`;
+      }
+    });
+    
+    // Clear storage
+    document.getElementById('clearStorage').addEventListener('click', () => {
+      chrome.storage.local.clear(() => {
+        output.innerHTML = '<div class="success">Storage cleared!</div>';
+      });
+    });
+    
+    // Test capture
+    document.getElementById('testCapture').addEventListener('click', async () => {
+      const tab = await checkTab();
+      
+      // Try to send message to content script
+      try {
+        const response = await chrome.tabs.sendMessage(tab.id, { action: 'ping' });
+        output.innerHTML = `<div class="success">Content script responded: ${JSON.stringify(response)}</div>`;
+      } catch (error) {
+        output.innerHTML = `<div class="error">No content script: ${error.message}</div>`;
+        
+        // Try to inject and run
+        try {
+          const results = await chrome.scripting.executeScript({
+            target: { tabId: tab.id },
+            func: () => {
+              // Create a test XHR request
+              const xhr = new XMLHttpRequest();
+              xhr.open('GET', '/test-' + Date.now());
+              xhr.send();
+              
+              // Create a test fetch
+              fetch('/api/test-' + Date.now()).catch(() => {});
+              
+              return { 
+                message: 'Test requests sent',
+                hasCapture: !!window.__drDOM,
+                requests: window.__drDOM?.requests?.length || 0
+              };
+            }
+          });
+          
+          output.innerHTML += `<div class="data">Test result: ${JSON.stringify(results[0].result)}</div>`;
+        } catch (e) {
+          output.innerHTML += `<div class="error">Test failed: ${e.message}</div>`;
+        }
+      }
+    });
+    
+      // Initial check
+      checkTab();
+    } // End of chrome API check
+  </script>
+</body>
+</html>

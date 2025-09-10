@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Dr. DOM Extension Test Page</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      border-bottom: 2px solid #667eea;
+      padding-bottom: 10px;
+    }
+    .test-section {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .test-section h2 {
+      color: #667eea;
+      margin-top: 0;
+    }
+    .status {
+      padding: 10px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .success {
+      background: #dcfce7;
+      color: #15803d;
+      border: 1px solid #86efac;
+    }
+    .error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+    .info {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #93c5fd;
+    }
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #764ba2;
+    }
+    .cookie-list {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      max-height: 200px;
+      overflow-y: auto;
+      font-family: monospace;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 Dr. DOM Extension Test Page</h1>
+  
+  <div class="test-section">
+    <h2>📋 Test Instructions</h2>
+    <div class="info">
+      <strong>How to test the Dr. DOM extension:</strong>
+      <ol>
+        <li>Make sure the Dr. DOM extension is installed and enabled</li>
+        <li>Reload this page after installing/updating the extension</li>
+        <li>Click the Dr. DOM extension icon in your browser toolbar</li>
+        <li>Navigate to the "Privacy Suite" tab</li>
+        <li>Test the cookie cleaning buttons</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="test-section">
+    <h2>🍪 Cookie Testing</h2>
+    <p>This page will create some test cookies for you to clean:</p>
+    <button onclick="createTestCookies()">Create Test Cookies</button>
+    <button onclick="showCurrentCookies()">Show Current Cookies</button>
+    <button onclick="clearTestCookies()">Clear Test Cookies (JavaScript)</button>
+    <div id="cookieStatus"></div>
+    <div id="cookieList" class="cookie-list" style="display:none;"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>📡 Network Activity</h2>
+    <p>Generate some network requests for the extension to capture:</p>
+    <button onclick="makeTestRequests()">Make Test API Calls</button>
+    <button onclick="loadTestImage()">Load Test Image</button>
+    <div id="networkStatus"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>🎯 Tracking Simulation</h2>
+    <p>Simulate tracking pixels and analytics:</p>
+    <button onclick="simulateTracking()">Simulate Tracking Pixels</button>
+    <div id="trackingStatus"></div>
+  </div>
+
+  <script>
+    // Test cookie functions
+    function createTestCookies() {
+      const cookies = [
+        { name: 'test_cookie', value: 'test_value_' + Date.now() },
+        { name: '_ga', value: 'GA1.2.123456789.1234567890' }, // Google Analytics
+        { name: '_fbp', value: 'fb.1.1234567890.123456789' }, // Facebook
+        { name: 'session_id', value: 'sess_' + Math.random().toString(36) },
+        { name: 'user_pref', value: 'theme=dark' },
+        { name: 'tracking_id', value: 'track_' + Date.now() }
+      ];
+      
+      cookies.forEach(cookie => {
+        document.cookie = `${cookie.name}=${cookie.value}; path=/; max-age=3600`;
+      });
+      
+      document.getElementById('cookieStatus').innerHTML = 
+        '<div class="success">✅ Created 6 test cookies (including tracking cookies)</div>';
+      
+      // Show the cookies
+      showCurrentCookies();
+    }
+    
+    function showCurrentCookies() {
+      const cookies = document.cookie.split(';');
+      const cookieList = document.getElementById('cookieList');
+      
+      if (cookies.length === 0 || (cookies.length === 1 && cookies[0] === '')) {
+        cookieList.innerHTML = 'No cookies found';
+        document.getElementById('cookieStatus').innerHTML = 
+          '<div class="info">No cookies currently set</div>';
+      } else {
+        let html = `<strong>Current cookies (${cookies.length}):</strong><br><br>`;
+        cookies.forEach(cookie => {
+          const [name, value] = cookie.trim().split('=');
+          html += `🍪 <strong>${name}</strong>: ${value || '(empty)'}<br>`;
+        });
+        cookieList.innerHTML = html;
+        document.getElementById('cookieStatus').innerHTML = 
+          `<div class="info">Found ${cookies.length} cookies</div>`;
+      }
+      
+      cookieList.style.display = 'block';
+    }
+    
+    function clearTestCookies() {
+      const cookies = document.cookie.split(';');
+      
+      cookies.forEach(cookie => {
+        const [name] = cookie.trim().split('=');
+        // Clear cookie by setting expiry in the past
+        document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+      });
+      
+      document.getElementById('cookieStatus').innerHTML = 
+        '<div class="success">✅ Cleared cookies via JavaScript</div>';
+      
+      // Show remaining cookies
+      setTimeout(showCurrentCookies, 100);
+    }
+    
+    // Network test functions
+    async function makeTestRequests() {
+      const status = document.getElementById('networkStatus');
+      status.innerHTML = '<div class="info">⏳ Making test API calls...</div>';
+      
+      try {
+        // Make some test requests
+        const requests = [
+          fetch('https://jsonplaceholder.typicode.com/posts/1'),
+          fetch('https://jsonplaceholder.typicode.com/users'),
+          fetch('https://api.github.com/zen')
+        ];
+        
+        await Promise.allSettled(requests);
+        
+        status.innerHTML = '<div class="success">✅ Made 3 test API calls. Check the extension popup!</div>';
+      } catch (error) {
+        status.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+      }
+    }
+    
+    function loadTestImage() {
+      const status = document.getElementById('networkStatus');
+      const img = new Image();
+      img.src = 'https://via.placeholder.com/1x1.png?' + Date.now();
+      
+      img.onload = () => {
+        status.innerHTML = '<div class="success">✅ Loaded test tracking pixel</div>';
+      };
+      
+      img.onerror = () => {
+        status.innerHTML = '<div class="error">❌ Failed to load image</div>';
+      };
+    }
+    
+    // Tracking simulation
+    function simulateTracking() {
+      const status = document.getElementById('trackingStatus');
+      status.innerHTML = '<div class="info">⏳ Simulating tracking activity...</div>';
+      
+      // Simulate various tracking pixels
+      const trackingUrls = [
+        'https://www.google-analytics.com/collect?v=1&t=pageview&tid=UA-FAKE&cid=' + Date.now(),
+        'https://www.facebook.com/tr?id=FAKE&ev=PageView&noscript=1',
+        'https://pixel.doubleclick.net/pixel?id=' + Date.now()
+      ];
+      
+      let loaded = 0;
+      trackingUrls.forEach(url => {
+        const img = new Image();
+        img.src = url;
+        img.onload = img.onerror = () => {
+          loaded++;
+          if (loaded === trackingUrls.length) {
+            status.innerHTML = '<div class="success">✅ Simulated 3 tracking pixels. Check the extension!</div>';
+          }
+        };
+      });
+    }
+    
+    // Check if extension is installed
+    window.addEventListener('load', () => {
+      // Try to detect if extension is active by checking for injected elements
+      setTimeout(() => {
+        if (window.__drDOM) {
+          console.log('✅ Dr. DOM extension detected!');
+        } else {
+          console.log('⚠️ Dr. DOM extension not detected. Make sure it\'s installed and enabled.');
+        }
+      }, 1000);
+    });
+  </script>
+</body>
+</html>

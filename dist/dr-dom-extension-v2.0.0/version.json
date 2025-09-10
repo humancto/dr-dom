@@ -1,0 +1,16 @@
+{
+  "version": "2.0.0",
+  "build_date": "2025-09-09 17:17:45 UTC",
+  "features": {
+    "tracker_blocking": true,
+    "cookie_cleaning": true,
+    "privacy_shield": true,
+    "honest_reviews": true,
+    "weather_report": true,
+    "money_trail": true,
+    "fingerprint_protection": true,
+    "webrtc_protection": true,
+    "incognito_plus": true,
+    "kids_mode": true
+  }
+}

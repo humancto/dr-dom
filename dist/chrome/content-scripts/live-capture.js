@@ -84,11 +84,22 @@
   function flushUpdates() {
     if (window.__drDOM.pendingUpdates.length === 0) return;
     
+    // Check if extension context is still valid
+    if (!chrome.storage || !chrome.storage.local) {
+      console.warn('[Dr. DOM] Extension context lost, stopping capture');
+      return;
+    }
+    
     const updates = window.__drDOM.pendingUpdates.splice(0);
     window.__drDOM.lastSaveTime = Date.now();
     
     // Get current data and append new updates
-    chrome.storage.local.get(STORAGE_KEY, (result) => {
+    try {
+      chrome.storage.local.get(STORAGE_KEY, (result) => {
+        if (chrome.runtime.lastError) {
+          console.warn('[Dr. DOM] Extension disconnected');
+          return;
+        }
       const existingData = result[STORAGE_KEY] || {
         url: window.location.href,
         hostname: DOMAIN,
@@ -137,13 +148,25 @@
           requestCount: existingData.requests.length
         }
       }, () => {
-        console.log(`[Dr. DOM Live] 📦 Flushed ${updates.length} updates (Total: ${existingData.requests.length} requests)`);
+        if (!chrome.runtime.lastError) {
+          console.log(`[Dr. DOM Live] 📦 Flushed ${updates.length} updates (Total: ${existingData.requests.length} requests)`);
+        }
       });
     });
+    } catch (error) {
+      console.warn('[Dr. DOM] Extension context lost:', error.message);
+    }
   }
   
-  // Set up periodic flush
-  setInterval(flushUpdates, SAVE_INTERVAL);
+  // Set up periodic flush with error handling
+  const flushInterval = setInterval(() => {
+    if (!chrome.storage || !chrome.storage.local) {
+      clearInterval(flushInterval);
+      console.log('[Dr. DOM] Extension disconnected, stopping flush');
+      return;
+    }
+    flushUpdates();
+  }, SAVE_INTERVAL);
   
   // Flush on page unload
   window.addEventListener('beforeunload', flushUpdates);

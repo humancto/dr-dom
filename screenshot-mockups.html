@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dr. DOM Screenshot Mockups</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #1e293b;
+            padding: 40px;
+        }
+        
+        .instructions {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+        }
+        
+        .screenshot-container {
+            margin-bottom: 60px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+        }
+        
+        /* Screenshot 1: Main Feature - 1280x800 */
+        .screenshot-1 {
+            width: 1280px;
+            height: 800px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .browser-mockup {
+            width: 1100px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .browser-bar {
+            background: #f3f4f6;
+            padding: 12px 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .browser-buttons {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .browser-button {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .browser-url {
+            flex: 1;
+            background: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            color: #6b7280;
+            border: 1px solid #e5e7eb;
+        }
+        
+        .browser-content {
+            height: 600px;
+            background: #f9fafb;
+            position: relative;
+        }
+        
+        .extension-popup {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 400px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .popup-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .popup-content {
+            padding: 20px;
+        }
+        
+        .money-display {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .money-amount {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .privacy-score {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 20px;
+            background: #f3f4f6;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .score-circle {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .grade-f { background: linear-gradient(135deg, #ef4444, #dc2626); }
+        .grade-a { background: linear-gradient(135deg, #10b981, #059669); }
+        .grade-c { background: linear-gradient(135deg, #f59e0b, #d97706); }
+        
+        .tracker-list {
+            padding: 15px;
+            background: #fef2f2;
+            border-radius: 8px;
+            border: 1px solid #fca5a5;
+        }
+        
+        .tracker-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 0;
+            border-bottom: 1px solid #fee2e2;
+        }
+        
+        .tracker-item:last-child {
+            border-bottom: none;
+        }
+        
+        /* Screenshot 2: Promo Tile - 440x280 */
+        .promo-small {
+            width: 440px;
+            height: 280px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .promo-content {
+            text-align: center;
+            color: white;
+            z-index: 2;
+        }
+        
+        .promo-logo {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+        }
+        
+        .promo-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .promo-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        /* Screenshot 3: Large Promo - 920x680 */
+        .promo-large {
+            width: 920px;
+            height: 680px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 60px;
+            border-radius: 8px;
+        }
+        
+        .promo-left {
+            color: white;
+            max-width: 400px;
+        }
+        
+        .promo-right {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .feature-box {
+            text-align: center;
+            padding: 20px;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+        
+        .feature-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+        
+        .feature-name {
+            font-size: 14px;
+            color: #1f2937;
+            font-weight: 600;
+        }
+        
+        /* Screenshot 4: Marquee - 1400x560 */
+        .marquee {
+            width: 1400px;
+            height: 560px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 60px;
+            border-radius: 8px;
+            position: relative;
+        }
+        
+        .marquee-content {
+            display: flex;
+            align-items: center;
+            gap: 60px;
+        }
+        
+        .marquee-text {
+            color: white;
+            max-width: 500px;
+        }
+        
+        .marquee-title {
+            font-size: 48px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+        
+        .marquee-features {
+            font-size: 20px;
+            line-height: 1.8;
+            opacity: 0.95;
+        }
+        
+        .marquee-demo {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.3);
+            width: 600px;
+        }
+        
+        .demo-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        .demo-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+        
+        .stat-card {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="instructions">
+        <h1>📸 Dr. DOM Screenshot Generator</h1>
+        <p>Take screenshots of each section below for the Chrome Web Store:</p>
+        <ol>
+            <li>Use Chrome DevTools (F12) > Device Toolbar to set exact dimensions</li>
+            <li>Or use Mac: Cmd+Shift+4 and drag to select</li>
+            <li>Or use Windows: Win+Shift+S</li>
+            <li>Save as PNG with descriptive names</li>
+        </ol>
+        <p style="margin-top: 20px; padding: 15px; background: #e0f2fe; border-radius: 8px;">
+            <strong>GitHub:</strong> <a href="https://github.com/humancto/dr-dom" target="_blank">github.com/humancto/dr-dom</a><br>
+            <strong>GitHub Pages:</strong> <a href="https://humancto.github.io/dr-dom" target="_blank">humancto.github.io/dr-dom</a>
+        </p>
+    </div>
+    
+    <!-- Screenshot 1: Main Extension Demo (1280x800) -->
+    <div class="screenshot-container">
+        <h2>Screenshot 1: Main Feature Demo (1280x800)</h2>
+        <div class="screenshot-1">
+            <div class="browser-mockup">
+                <div class="browser-bar">
+                    <div class="browser-buttons">
+                        <div class="browser-button" style="background: #ef4444;"></div>
+                        <div class="browser-button" style="background: #f59e0b;"></div>
+                        <div class="browser-button" style="background: #10b981;"></div>
+                    </div>
+                    <div class="browser-url">https://news-website.com/article/breaking-news-today</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="background: #667eea; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">
+                            Dr. DOM Active
+                        </div>
+                    </div>
+                </div>
+                <div class="browser-content">
+                    <!-- Fake website content -->
+                    <div style="padding: 40px; max-width: 800px;">
+                        <h1 style="font-size: 32px; margin-bottom: 20px;">Breaking: Major Privacy Concerns in Tech Industry</h1>
+                        <p style="color: #6b7280; line-height: 1.6;">
+                            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Privacy advocates raise concerns about data collection practices...
+                        </p>
+                    </div>
+                    
+                    <!-- Extension Popup -->
+                    <div class="extension-popup">
+                        <div class="popup-header">
+                            <div style="font-size: 24px; margin-bottom: 5px;">🔍 Dr. DOM</div>
+                            <div style="font-size: 12px; opacity: 0.9;">Privacy & Security Inspector</div>
+                        </div>
+                        <div class="popup-content">
+                            <!-- Money Trail -->
+                            <div class="money-display">
+                                <div style="font-size: 14px; opacity: 0.9;">This site is making</div>
+                                <div class="money-amount">$0.73</div>
+                                <div style="font-size: 12px; opacity: 0.9;">from your visit</div>
+                                <div style="margin-top: 15px; display: flex; justify-content: space-around; font-size: 11px;">
+                                    <div>📺 Ads: $0.45</div>
+                                    <div>📊 Data: $0.20</div>
+                                    <div>🎯 Trackers: $0.08</div>
+                                </div>
+                            </div>
+                            
+                            <!-- Privacy Score -->
+                            <div class="privacy-score">
+                                <div>
+                                    <div style="font-size: 18px; font-weight: bold; color: #1f2937;">Privacy Score</div>
+                                    <div style="font-size: 12px; color: #6b7280; margin-top: 5px;">24/100 points</div>
+                                </div>
+                                <div class="score-circle grade-f">F</div>
+                            </div>
+                            
+                            <!-- Trackers -->
+                            <div class="tracker-list">
+                                <div style="font-weight: bold; color: #991b1b; margin-bottom: 10px;">
+                                    ⚠️ 38 Trackers Detected
+                                </div>
+                                <div class="tracker-item">
+                                    <span>📊</span>
+                                    <span style="flex: 1;">Google Analytics</span>
+                                    <span style="color: #dc2626; font-size: 12px;">Tracking</span>
+                                </div>
+                                <div class="tracker-item">
+                                    <span>👁️</span>
+                                    <span style="flex: 1;">Facebook Pixel</span>
+                                    <span style="color: #dc2626; font-size: 12px;">Tracking</span>
+                                </div>
+                                <div class="tracker-item">
+                                    <span>🎯</span>
+                                    <span style="flex: 1;">DoubleClick</span>
+                                    <span style="color: #ea580c; font-size: 12px;">Advertising</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Screenshot 2: Small Promo Tile (440x280) -->
+    <div class="screenshot-container">
+        <h2>Small Promo Tile (440x280)</h2>
+        <div class="promo-small">
+            <div class="promo-content">
+                <div class="promo-logo">🔍</div>
+                <div class="promo-title">Dr. DOM</div>
+                <div class="promo-subtitle">See what websites see</div>
+                <div class="promo-subtitle">Know what you're worth</div>
+            </div>
+            <div style="position: absolute; top: 20px; right: 20px; font-size: 24px;">💰</div>
+            <div style="position: absolute; bottom: 20px; left: 20px; font-size: 24px;">🛡️</div>
+            <div style="position: absolute; top: 20px; left: 20px; font-size: 24px;">🔒</div>
+            <div style="position: absolute; bottom: 20px; right: 20px; font-size: 24px;">📊</div>
+        </div>
+    </div>
+    
+    <!-- Screenshot 3: Large Promo Tile (920x680) -->
+    <div class="screenshot-container">
+        <h2>Large Promo Tile (920x680)</h2>
+        <div class="promo-large">
+            <div class="promo-left">
+                <div style="font-size: 48px; margin-bottom: 20px;">🔍</div>
+                <h1 style="font-size: 48px; margin-bottom: 20px;">Dr. DOM</h1>
+                <p style="font-size: 24px; margin-bottom: 30px; opacity: 0.95;">
+                    Advanced Web Privacy & Security Inspector
+                </p>
+                <div style="font-size: 18px; line-height: 1.8; opacity: 0.9;">
+                    ✓ See exactly how much money sites make from you<br>
+                    ✓ Real-time privacy scores (A-F grades)<br>
+                    ✓ Detect 5,000+ trackers instantly<br>
+                    ✓ Domain intelligence & phishing alerts<br>
+                    ✓ 100% free, no data collection
+                </div>
+            </div>
+            <div class="promo-right">
+                <h3 style="text-align: center; margin-bottom: 20px; color: #1f2937;">Key Features</h3>
+                <div class="feature-grid">
+                    <div class="feature-box">
+                        <div class="feature-icon">💰</div>
+                        <div class="feature-name">Money Trail</div>
+                    </div>
+                    <div class="feature-box">
+                        <div class="feature-icon">🛡️</div>
+                        <div class="feature-name">Privacy Score</div>
+                    </div>
+                    <div class="feature-box">
+                        <div class="feature-icon">🎯</div>
+                        <div class="feature-name">Tracker Detection</div>
+                    </div>
+                    <div class="feature-box">
+                        <div class="feature-icon">🌐</div>
+                        <div class="feature-name">DNS Analysis</div>
+                    </div>
+                </div>
+                <div style="margin-top: 30px; text-align: center;">
+                    <div style="display: inline-block; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 12px 24px; border-radius: 8px; font-weight: bold;">
+                        Install Free Now
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Screenshot 4: Marquee Promo (1400x560) -->
+    <div class="screenshot-container">
+        <h2>Marquee Promo (1400x560)</h2>
+        <div class="marquee">
+            <div class="marquee-content">
+                <div class="marquee-text">
+                    <div class="marquee-title">
+                        Your Data is Worth<br>
+                        <span style="color: #fbbf24;">$700 Per Year</span>
+                    </div>
+                    <div class="marquee-features">
+                        Dr. DOM reveals the hidden economy:<br>
+                        • How much websites earn from you<br>
+                        • Who's tracking your every move<br>
+                        • Your real-time privacy score<br>
+                        • Security threats & phishing alerts
+                    </div>
+                    <div style="margin-top: 30px;">
+                        <span style="background: white; color: #667eea; padding: 15px 30px; border-radius: 8px; font-weight: bold; display: inline-block;">
+                            Take Back Control - Install Free
+                        </span>
+                    </div>
+                </div>
+                <div class="marquee-demo">
+                    <div class="demo-header">
+                        <h3 style="margin: 0; color: #1f2937;">Live Analysis Dashboard</h3>
+                        <div style="background: #ef4444; color: white; padding: 8px 16px; border-radius: 20px; font-size: 14px; font-weight: bold;">
+                            LIVE
+                        </div>
+                    </div>
+                    <div class="demo-stats">
+                        <div class="stat-card">
+                            <div class="stat-number">$1.47</div>
+                            <div class="stat-label">Revenue/Visit</div>
+                        </div>
+                        <div class="stat-card" style="background: #fee2e2;">
+                            <div class="stat-number" style="color: #dc2626;">F</div>
+                            <div class="stat-label">Privacy Grade</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">42</div>
+                            <div class="stat-label">Trackers</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">127</div>
+                            <div class="stat-label">Cookies</div>
+                        </div>
+                        <div class="stat-card" style="background: #dcfce7;">
+                            <div class="stat-number" style="color: #16a34a;">✓</div>
+                            <div class="stat-label">SSL Secure</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number">238</div>
+                            <div class="stat-label">Requests</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Additional Screenshots -->
+    <div class="screenshot-container">
+        <h2>Additional Screenshots (1280x800)</h2>
+        
+        <!-- Good Privacy Example -->
+        <div class="screenshot-1" style="margin-bottom: 40px;">
+            <div class="browser-mockup">
+                <div class="browser-bar">
+                    <div class="browser-buttons">
+                        <div class="browser-button" style="background: #ef4444;"></div>
+                        <div class="browser-button" style="background: #f59e0b;"></div>
+                        <div class="browser-button" style="background: #10b981;"></div>
+                    </div>
+                    <div class="browser-url">https://duckduckgo.com</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="background: #10b981; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">
+                            Dr. DOM Active
+                        </div>
+                    </div>
+                </div>
+                <div class="browser-content">
+                    <div style="padding: 40px; text-align: center;">
+                        <h1 style="font-size: 48px; margin-bottom: 20px;">DuckDuckGo</h1>
+                        <p style="color: #6b7280;">The search engine that doesn't track you</p>
+                    </div>
+                    
+                    <!-- Extension Popup - Good Privacy -->
+                    <div class="extension-popup">
+                        <div class="popup-header">
+                            <div style="font-size: 24px; margin-bottom: 5px;">🔍 Dr. DOM</div>
+                            <div style="font-size: 12px; opacity: 0.9;">Privacy & Security Inspector</div>
+                        </div>
+                        <div class="popup-content">
+                            <!-- Money Trail -->
+                            <div style="background: linear-gradient(135deg, #dcfce7, #bbf7d0); padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px;">
+                                <div style="font-size: 14px; color: #166534;">This site is making</div>
+                                <div style="font-size: 48px; font-weight: bold; color: #16a34a; margin: 10px 0;">$0.00</div>
+                                <div style="font-size: 12px; color: #166534;">Respects your privacy!</div>
+                            </div>
+                            
+                            <!-- Privacy Score -->
+                            <div class="privacy-score">
+                                <div>
+                                    <div style="font-size: 18px; font-weight: bold; color: #1f2937;">Privacy Score</div>
+                                    <div style="font-size: 12px; color: #6b7280; margin-top: 5px;">95/100 points</div>
+                                </div>
+                                <div class="score-circle grade-a">A</div>
+                            </div>
+                            
+                            <!-- Clean Report -->
+                            <div style="padding: 15px; background: #dcfce7; border-radius: 8px; border: 1px solid #86efac;">
+                                <div style="font-weight: bold; color: #166534; margin-bottom: 10px;">
+                                    ✅ Excellent Privacy Protection
+                                </div>
+                                <div style="font-size: 14px; color: #16a34a; line-height: 1.6;">
+                                    • No trackers detected<br>
+                                    • No advertising networks<br>
+                                    • Minimal cookies<br>
+                                    • Secure SSL connection
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Domain Analysis Screenshot -->
+        <div class="screenshot-1">
+            <div class="browser-mockup">
+                <div class="browser-bar">
+                    <div class="browser-buttons">
+                        <div class="browser-button" style="background: #ef4444;"></div>
+                        <div class="browser-button" style="background: #f59e0b;"></div>
+                        <div class="browser-button" style="background: #10b981;"></div>
+                    </div>
+                    <div class="browser-url">https://suspicious-site.com</div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="background: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold;">
+                            ⚠️ Warning
+                        </div>
+                    </div>
+                </div>
+                <div class="browser-content">
+                    <!-- Warning Banner -->
+                    <div style="background: linear-gradient(135deg, #ef4444, #dc2626); color: white; padding: 20px; text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 10px;">⚠️ Security Warning</div>
+                        <div>Dr. DOM detected potential security threats on this website</div>
+                    </div>
+                    
+                    <!-- Extension Popup - Domain Analysis -->
+                    <div class="extension-popup" style="width: 450px;">
+                        <div class="popup-header" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                            <div style="font-size: 24px; margin-bottom: 5px;">🔍 Dr. DOM Alert</div>
+                            <div style="font-size: 12px; opacity: 0.9;">Domain Security Analysis</div>
+                        </div>
+                        <div class="popup-content">
+                            <!-- Domain Intelligence -->
+                            <div style="padding: 15px; background: #fef2f2; border-radius: 8px; border: 2px solid #dc2626; margin-bottom: 20px;">
+                                <div style="font-weight: bold; color: #991b1b; margin-bottom: 10px;">
+                                    🚨 Critical Security Issues
+                                </div>
+                                <div style="font-size: 14px; color: #dc2626; line-height: 1.8;">
+                                    • Domain registered 3 days ago<br>
+                                    • No email configuration (MX records)<br>
+                                    • Hosted on suspicious IP range<br>
+                                    • No SSL certificate authority<br>
+                                    • Possible typosquatting attempt
+                                </div>
+                            </div>
+                            
+                            <!-- DNS Analysis -->
+                            <div style="padding: 15px; background: #f9fafb; border-radius: 8px; margin-bottom: 20px;">
+                                <div style="font-weight: bold; color: #1f2937; margin-bottom: 10px;">
+                                    🌐 DNS Intelligence
+                                </div>
+                                <div style="font-size: 13px; line-height: 1.6;">
+                                    <div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                                        <span style="color: #6b7280;">Hosting:</span>
+                                        <span style="color: #dc2626;">Unknown Provider</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                                        <span style="color: #6b7280;">Location:</span>
+                                        <span>Eastern Europe</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; padding: 5px 0;">
+                                        <span style="color: #6b7280;">Trust Score:</span>
+                                        <span style="color: #dc2626; font-weight: bold;">12/100</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <button style="width: 100%; background: #dc2626; color: white; padding: 12px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer;">
+                                Leave This Site Immediately
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

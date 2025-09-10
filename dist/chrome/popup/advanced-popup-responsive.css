@@ -509,6 +509,9 @@ body {
 .method-badge.post { background: #667eea; color: white; }
 .method-badge.put { background: #f59e0b; color: white; }
 .method-badge.delete { background: #ef4444; color: white; }
+.method-badge.patch { background: #8b5cf6; color: white; }
+.method-badge.options { background: #64748b; color: white; }
+.method-badge.head { background: #06b6d4; color: white; }
 
 .url-cell {
   max-width: 250px;
@@ -673,6 +676,36 @@ body {
   background: var(--bg-secondary);
 }
 
+.btn-danger {
+  background: var(--error-color);
+  color: white;
+  border-color: var(--error-color);
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+.btn-warning {
+  background: var(--warning-color);
+  color: white;
+  border-color: var(--warning-color);
+}
+
+.btn-warning:hover {
+  background: #d97706;
+}
+
+.btn-info {
+  background: var(--info-color);
+  color: white;
+  border-color: var(--info-color);
+}
+
+.btn-info:hover {
+  background: #2563eb;
+}
+
 .btn-icon {
   font-size: 14px;
 }
@@ -688,6 +721,28 @@ body {
 .no-requests {
   text-align: center;
   color: var(--text-muted);
+}
+
+/* Privacy Suite Styles */
+.toggle-item {
+  display: block;
+  padding: 8px 0;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.toggle-item input[type="checkbox"] {
+  margin-right: 8px;
+}
+
+.toggle-item:hover {
+  color: var(--primary-color);
+}
+
+#funOutput {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text-primary);
 }
 
 /* Scrollbar Styling */

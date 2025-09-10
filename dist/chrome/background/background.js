@@ -141,7 +141,62 @@ class DrDOMBackground {
 
   setupMessageHandling() {
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-      switch (request.action) {
+      console.log('[Background] Message received:', request.action || request.type, request);
+      
+      // Handle both action and type fields for compatibility
+      const messageType = request.action || request.type;
+      
+      switch (messageType) {
+        case 'getSecurityHeaders':
+          // Get security headers for SSL analyzer
+          this.getSecurityHeaders(request.url)
+            .then(headers => sendResponse({ headers }))
+            .catch(error => sendResponse({ error: error.message }));
+          return true; // Keep message channel open for async response
+          
+        case 'checkURLhaus':
+          // Check URL with URLhaus API (no CORS in background)
+          this.checkURLhaus(request.url)
+            .then(data => sendResponse({ success: true, data }))
+            .catch(error => sendResponse({ success: false, error: error.message }));
+          return true; // Keep message channel open for async response
+          
+        case 'checkPhishTank':
+          // PhishTank check (free but needs simple registration)
+          // For now, using local detection
+          this.checkPhishingLocal(request.url)
+            .then(data => sendResponse({ success: true, data }))
+            .catch(error => sendResponse({ success: false, error: error.message }));
+          return true;
+          
+        case 'checkToSDR':
+          // ToS;DR API (completely free, no key needed)
+          this.checkToSDR(request.domain)
+            .then(data => sendResponse({ success: true, data }))
+            .catch(error => sendResponse({ success: false, error: error.message }));
+          return true;
+          
+        case 'checkCryptoScam':
+          // CryptoScamDB (free, open source)
+          this.checkCryptoScam(request.domain)
+            .then(data => sendResponse({ success: true, data }))
+            .catch(error => sendResponse({ success: false, error: error.message }));
+          return true;
+          
+        case 'checkMozillaObservatory':
+          // Mozilla Observatory (FREE, no key needed)
+          this.checkMozillaObservatory(request.domain)
+            .then(data => sendResponse({ success: true, data }))
+            .catch(error => sendResponse({ success: false, error: error.message }));
+          return true;
+          
+        case 'checkOpenPhish':
+          // OpenPhish (FREE, no key needed)
+          this.checkOpenPhish(request.url)
+            .then(data => sendResponse({ success: true, data }))
+            .catch(error => sendResponse({ success: false, error: error.message }));
+          return true;
+          
         case 'saveCapturedData':
           // Save data from content script to chrome.storage by domain
           if (request.data && sender.tab) {
@@ -184,10 +239,243 @@ class DrDOMBackground {
             .catch(error => sendResponse({ success: false, error: error.message }));
           return true;
 
+        case 'CLEAN_COOKIES':
+          this.cleanCookies(request.domain, request.trackingPatterns, request.essentialPatterns)
+            .then(result => sendResponse(result))
+            .catch(error => sendResponse({ success: false, error: error.message }));
+          return true;
+
+        case 'CLEAN_SPECIFIC_COOKIES':
+          // Use the tab from the request if provided (from popup), otherwise use sender.tab (from content script)
+          const tabToClean = request.tab || sender.tab;
+          if (!tabToClean) {
+            sendResponse({ success: false, error: 'No tab information provided' });
+            return true;
+          }
+          this.cleanSpecificCookies(tabToClean, request.cleanType)
+            .then(result => sendResponse(result))
+            .catch(error => sendResponse({ success: false, error: error.message }));
+          return true;
+
+        case 'URLHAUS_UPDATE':
+          this.downloadURLhausDatabase(request.url)
+            .then(data => sendResponse({ success: true, data: data }))
+            .catch(error => sendResponse({ success: false, error: error.message }));
+          return true;
+
         default:
-          sendResponse({ error: 'Unknown action' });
+          console.log('[Background] Unknown message type:', messageType);
+          sendResponse({ error: 'Unknown action: ' + messageType });
       }
     });
+  }
+  
+  async downloadURLhausDatabase(url) {
+    try {
+      console.log('[URLhaus] Downloading database from:', url);
+      
+      // Download the database
+      const response = await fetch(url);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      const text = await response.text();
+      console.log(`[URLhaus] Downloaded ${text.length} bytes`);
+      
+      return text;
+    } catch (error) {
+      console.error('[URLhaus] Failed to download database:', error);
+      throw error;
+    }
+  }
+
+  async cleanCookies(domain, trackingPatterns, essentialPatterns) {
+    let cleaned = 0;
+    
+    try {
+      // Get all cookies for the domain
+      const cookies = await chrome.cookies.getAll({ domain: domain });
+      
+      // Convert string patterns back to RegExp
+      const trackingRegexes = trackingPatterns.map(p => new RegExp(p.slice(1, -2), p.slice(-1)));
+      const essentialRegexes = essentialPatterns.map(p => new RegExp(p.slice(1, -2), p.slice(-1)));
+      
+      for (const cookie of cookies) {
+        // Check if cookie is essential (whitelist)
+        const isEssential = essentialRegexes.some(pattern => pattern.test(cookie.name));
+        if (isEssential) continue;
+        
+        // Check if cookie is tracking (blacklist)
+        const isTracking = trackingRegexes.some(pattern => pattern.test(cookie.name));
+        
+        if (isTracking) {
+          // Remove the cookie
+          const url = `http${cookie.secure ? 's' : ''}://${cookie.domain}${cookie.path}`;
+          await chrome.cookies.remove({
+            url: url,
+            name: cookie.name
+          });
+          cleaned++;
+          console.log(`[Cookie Cleaner] Removed tracking cookie: ${cookie.name}`);
+        }
+      }
+      
+      return { success: true, cleaned: cleaned };
+    } catch (error) {
+      console.error('[Cookie Cleaner] Error cleaning cookies:', error);
+      return { success: false, error: error.message, cleaned: 0 };
+    }
+  }
+
+  async cleanSpecificCookies(tab, cleanType) {
+    console.log('[Cookie Cleaner] Starting cleanup:', { cleanType, url: tab.url });
+    
+    const results = {
+      cleaned: 0,
+      type: cleanType,
+      details: []
+    };
+    
+    try {
+      const url = new URL(tab.url);
+      const domain = url.hostname;
+      console.log('[Cookie Cleaner] Domain:', domain);
+      
+      switch(cleanType) {
+        case 'ALL_COOKIES':
+          // Get ALL cookies and filter for this domain
+          const allCookies = await chrome.cookies.getAll({});
+          console.log('[Cookie Cleaner] Total cookies found:', allCookies.length);
+          
+          for (const cookie of allCookies) {
+            // Normalize domain for comparison
+            const cookieDomain = cookie.domain.startsWith('.') ? cookie.domain.substring(1) : cookie.domain;
+            
+            // Check if cookie belongs to this domain (exact match or subdomain)
+            const belongsToThisDomain = (
+              domain === cookieDomain ||
+              domain.endsWith('.' + cookieDomain) ||
+              cookieDomain.endsWith('.' + domain) ||
+              cookie.domain === '.' + domain
+            );
+            
+            if (belongsToThisDomain) {
+              console.log('[Cookie Cleaner] Found matching cookie:', cookie.name, 'from', cookie.domain);
+              // Build URL for cookie removal - must match the cookie's domain exactly
+              const protocol = cookie.secure ? 'https' : 'http';
+              // Use the actual domain from the cookie (with or without the leading dot)
+              const cookieUrl = `${protocol}://${cookie.domain.startsWith('.') ? cookie.domain.substring(1) : cookie.domain}${cookie.path}`;
+              
+              console.log(`[Cookie Cleaner] Attempting to remove ${cookie.name} with URL: ${cookieUrl}`);
+              
+              try {
+                await chrome.cookies.remove({
+                  url: cookieUrl,
+                  name: cookie.name,
+                  storeId: cookie.storeId || "0"
+                });
+                results.cleaned++;
+                results.details.push(cookie.name);
+                console.log(`[Cookie Cleaner] ✅ Successfully removed: ${cookie.name}`);
+              } catch (err) {
+                console.error(`[Cookie Cleaner] ❌ Failed to remove ${cookie.name}:`, err);
+                // Try without storeId
+                try {
+                  await chrome.cookies.remove({
+                    url: cookieUrl,
+                    name: cookie.name
+                  });
+                  results.cleaned++;
+                  results.details.push(cookie.name);
+                  console.log(`[Cookie Cleaner] ✅ Removed (no storeId): ${cookie.name}`);
+                } catch (err2) {
+                  console.error(`[Cookie Cleaner] ❌ Still failed:`, err2);
+                }
+              }
+            }
+          }
+          break;
+          
+        case 'TRACKING_COOKIES':
+          // Remove only known tracking cookies
+          const trackingPatterns = [
+            /_ga$|^_ga_|^_gid$|^_gat|^__utm|^_gcl|^_gac_/i,
+            /^fbm_|^fbsr_|^fbs_|^act$|^c_user|^datr/i,
+            /^_clck|^_clsk|^MUID|^MC1|^MS0/i,
+            /^_fbp$|^_fbc$|^fr$|^tr$/i,
+            /^IDE$|^NID$|^ANID$|^1P_JAR/i,
+            /^_pinterest_|^_pin_unauth/i,
+            /^mp_|^mixpanel|^amplitude|^segment/i
+          ];
+          
+          const cookies = await chrome.cookies.getAll({});
+          for (const cookie of cookies) {
+            // Check if cookie belongs to this domain
+            if (cookie.domain.includes(domain) || 
+                cookie.domain === `.${domain}` || 
+                cookie.domain === domain ||
+                domain.includes(cookie.domain.replace('.', ''))) {
+              
+              const isTracking = trackingPatterns.some(pattern => pattern.test(cookie.name));
+              if (isTracking) {
+                const cookieUrl = `http${cookie.secure ? 's' : ''}://${cookie.domain.startsWith('.') ? cookie.domain.substring(1) : cookie.domain}${cookie.path}`;
+                
+                try {
+                  await chrome.cookies.remove({
+                    url: cookieUrl,
+                    name: cookie.name
+                  });
+                  results.cleaned++;
+                  results.details.push(cookie.name);
+                  console.log(`[Cookie Cleaner] Removed tracking cookie: ${cookie.name}`);
+                } catch (err) {
+                  console.error(`[Cookie Cleaner] Failed to remove ${cookie.name}:`, err);
+                }
+              }
+            }
+          }
+          break;
+          
+        case 'THIRD_PARTY':
+          // Remove third-party cookies
+          const thirdPartyCookies = await chrome.cookies.getAll({});
+          for (const cookie of thirdPartyCookies) {
+            if (!cookie.domain.includes(domain) && cookie.domain !== `.${domain}`) {
+              const cookieUrl = `http${cookie.secure ? 's' : ''}://${cookie.domain}${cookie.path}`;
+              await chrome.cookies.remove({
+                url: cookieUrl,
+                name: cookie.name
+              });
+              results.cleaned++;
+              results.details.push(`${cookie.name} (${cookie.domain})`);
+            }
+          }
+          break;
+          
+        case 'LOCAL_STORAGE':
+          // Clear localStorage via content script
+          await chrome.tabs.sendMessage(tab.id, {
+            type: 'CLEAR_LOCAL_STORAGE'
+          });
+          results.cleaned = 'cleared';
+          break;
+          
+        case 'SESSION_STORAGE':
+          // Clear sessionStorage via content script
+          await chrome.tabs.sendMessage(tab.id, {
+            type: 'CLEAR_SESSION_STORAGE'
+          });
+          results.cleaned = 'cleared';
+          break;
+      }
+      
+      return { success: true, results: results };
+    } catch (error) {
+      console.error('[Cookie Cleaner] Error in cleanSpecificCookies:', error);
+      return { success: false, error: error.message, results: results };
+    }
   }
 
   setupContextMenus() {
@@ -783,6 +1071,227 @@ class DrDOMBackground {
   escapeCSV(str) {
     if (typeof str !== 'string') return str;
     return '"' + str.replace(/"/g, '""') + '"';
+  }
+
+  async getSecurityHeaders(url) {
+    // Get security headers from the last response for this URL
+    const tabId = (await chrome.tabs.query({ active: true, currentWindow: true }))[0]?.id;
+    if (!tabId) return {};
+    
+    // Find matching request
+    const matchingRequests = Array.from(this.networkRequests.values())
+      .filter(req => req.url === url && req.tabId === tabId);
+    
+    if (matchingRequests.length === 0) return {};
+    
+    const lastRequest = matchingRequests[matchingRequests.length - 1];
+    const responseHeaders = lastRequest.phases.response?.details?.responseHeaders || [];
+    
+    // Convert headers array to object
+    const headers = {};
+    responseHeaders.forEach(h => {
+      headers[h.name] = h.value;
+    });
+    
+    return headers;
+  }
+
+  async checkURLhaus(url) {
+    // Check URL with URLhaus API for malware (FREE, no key needed)
+    try {
+      const formData = new URLSearchParams();
+      formData.append('url', url);
+      
+      const response = await fetch('https://urlhaus-api.abuse.ch/v1/url/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString()
+      });
+      
+      if (!response.ok) {
+        console.warn('[URLhaus] API response not OK:', response.status);
+        return null;
+      }
+      
+      const data = await response.json();
+      return data;
+      
+    } catch (error) {
+      console.warn('[URLhaus] API error:', error);
+      return null;
+    }
+  }
+
+  async checkPhishingLocal(url) {
+    // Local phishing detection using patterns (no API needed)
+    const phishingPatterns = [
+      // Common phishing patterns
+      /[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/, // IP addresses
+      /bit\.ly|tinyurl|short\.link|goo\.gl/, // URL shorteners
+      /-{2,}/, // Multiple hyphens
+      /[a-z]+(paypal|amazon|google|microsoft|apple|bank)[a-z]+\./, // Typosquatting
+      /secure.*update.*[a-z]+\.com/, // Fake security updates
+      /[0-9]{2,}\..*\.(tk|ml|ga|cf)/, // Suspicious TLDs
+    ];
+    
+    const suspiciousWords = [
+      'verify', 'suspended', 'locked', 'expired', 'refund', 'urgent',
+      'confirm', 'update', 'validate', 'secure', 'alert', 'warning'
+    ];
+    
+    let score = 0;
+    const urlLower = url.toLowerCase();
+    
+    // Check patterns
+    for (const pattern of phishingPatterns) {
+      if (pattern.test(urlLower)) score += 2;
+    }
+    
+    // Check suspicious words
+    for (const word of suspiciousWords) {
+      if (urlLower.includes(word)) score += 1;
+    }
+    
+    return {
+      in_database: score > 3,
+      verified: score > 5,
+      phish_score: score,
+      detection_method: 'local_patterns'
+    };
+  }
+
+  async checkToSDR(domain) {
+    // Terms of Service; Didn't Read API (COMPLETELY FREE)
+    try {
+      // Clean the domain
+      const cleanDomain = domain.replace('www.', '').split('.')[0];
+      
+      const response = await fetch(`https://tosdr.org/api/1/service/${cleanDomain}.json`);
+      
+      if (!response.ok) {
+        // Service not in database
+        return null;
+      }
+      
+      const data = await response.json();
+      
+      // Parse the response
+      return {
+        class: data.class || 'N/A', // A, B, C, D, E
+        points: data.points || {},
+        badges: data.badges || [],
+        urls: data.urls || []
+      };
+      
+    } catch (error) {
+      console.warn('[ToS;DR] API error:', error);
+      return null;
+    }
+  }
+
+  async checkCryptoScam(domain) {
+    // CryptoScamDB (FREE, open source)
+    try {
+      // Use their GitHub raw data (always up to date)
+      const response = await fetch('https://raw.githubusercontent.com/CryptoScamDB/blacklist/master/data/urls.yaml');
+      
+      if (!response.ok) {
+        return null;
+      }
+      
+      const text = await response.text();
+      
+      // Simple check if domain is in the list
+      const isScam = text.toLowerCase().includes(domain.toLowerCase());
+      
+      return {
+        result: isScam ? 'blocked' : 'clean',
+        type: isScam ? 'scam' : null,
+        source: 'CryptoScamDB'
+      };
+      
+    } catch (error) {
+      // Fallback to local crypto scam patterns
+      const cryptoScamPatterns = [
+        'elon.*musk.*giveaway',
+        'bitcoin.*doubler',
+        'crypto.*investment.*guaranteed',
+        'free.*ethereum',
+        'airdrop.*claim'
+      ];
+      
+      const isScam = cryptoScamPatterns.some(pattern => 
+        new RegExp(pattern, 'i').test(domain)
+      );
+      
+      return {
+        result: isScam ? 'blocked' : 'clean',
+        type: isScam ? 'scam_pattern' : null,
+        source: 'local_patterns'
+      };
+    }
+  }
+
+  async checkMozillaObservatory(domain) {
+    // Mozilla Observatory - FREE security analysis
+    try {
+      const response = await fetch(
+        `https://http-observatory.security.mozilla.org/api/v1/analyze?host=${domain}`,
+        { method: 'POST' }
+      );
+      
+      if (!response.ok) return null;
+      
+      const data = await response.json();
+      
+      // Get the detailed test results
+      const testsResponse = await fetch(
+        `https://http-observatory.security.mozilla.org/api/v1/getScanResults?scan=${data.scan_id}`
+      );
+      
+      const tests = await testsResponse.json();
+      
+      return {
+        grade: data.grade,
+        score: data.score,
+        tests: tests,
+        likelihood_indicator: data.likelihood_indicator
+      };
+      
+    } catch (error) {
+      console.warn('[Mozilla Observatory] Check failed:', error);
+      return null;
+    }
+  }
+
+  async checkOpenPhish(url) {
+    // OpenPhish - FREE phishing detection
+    try {
+      // Fetch the feed (updated every 12 hours)
+      const response = await fetch('https://openphish.com/feed.txt');
+      
+      if (!response.ok) return null;
+      
+      const text = await response.text();
+      const phishingUrls = text.split('\n').filter(Boolean);
+      
+      // Check if URL is in the list
+      const isPhishing = phishingUrls.some(phishUrl => 
+        url.includes(phishUrl) || phishUrl.includes(url)
+      );
+      
+      return {
+        isPhishing: isPhishing,
+        source: 'OpenPhish',
+        lastUpdated: new Date().toISOString()
+      };
+      
+    } catch (error) {
+      console.warn('[OpenPhish] Check failed:', error);
+      return null;
+    }
   }
 
   async inspectElement(tabId, info) {

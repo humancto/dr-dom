@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. DOM Extension Test Page</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #667eea;
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #764ba2;
+            font-size: 20px;
+            margin-bottom: 40px;
+        }
+        .test-section {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        .test-section h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .test-item {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+        .test-item h3 {
+            margin: 0 0 10px 0;
+            color: #667eea;
+            font-size: 16px;
+        }
+        .test-item p {
+            margin: 5px 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        .status.working { background: #10b981; color: white; }
+        .status.testing { background: #f59e0b; color: white; }
+        .status.new { background: #667eea; color: white; }
+        .instructions {
+            background: #fef3c7;
+            border: 2px solid #f59e0b;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+        .instructions h3 {
+            color: #92400e;
+            margin-top: 0;
+        }
+        .instructions ol {
+            color: #78350f;
+        }
+        .highlight {
+            background: linear-gradient(135deg, #10b981, #3b82f6);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .cta-button {
+            background: white;
+            color: #667eea;
+            padding: 12px 24px;
+            border-radius: 8px;
+            text-decoration: none;
+            display: inline-block;
+            font-weight: 600;
+            margin-top: 10px;
+            transition: transform 0.2s;
+        }
+        .cta-button:hover {
+            transform: scale(1.05);
+        }
+        .tracker-test {
+            margin-top: 20px;
+        }
+        code {
+            background: #e2e8f0;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Monaco', monospace;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Dr. DOM Extension Test Page</h1>
+        <p class="subtitle">Test all features of your privacy-protecting, website-roasting Chrome extension!</p>
+
+        <div class="instructions">
+            <h3>📋 Testing Instructions</h3>
+            <ol>
+                <li>Make sure the Dr. DOM extension is loaded in Chrome</li>
+                <li>Open the extension popup (click the extension icon)</li>
+                <li>Navigate through all 5 tabs: Overview, Requests, Performance, Security, Privacy Suite</li>
+                <li>Watch for the cookie banner to auto-appear (2 seconds after page load)</li>
+                <li>Check Privacy Suite tab for stats and fun features</li>
+                <li>Try the "Roast This Site", "Privacy Weather", and "Show Cookie Banner" buttons</li>
+            </ol>
+        </div>
+
+        <div class="highlight">
+            <h2>🎯 What Makes Dr. DOM Special?</h2>
+            <p><strong>100% Real Data + Active Protection + Entertainment</strong></p>
+            <p>We don't just show you privacy problems - we fix them AND roast websites while doing it!</p>
+            <a href="#features" class="cta-button">See All Features ↓</a>
+        </div>
+
+        <div class="test-section" id="features">
+            <h2>✅ Core Features (10 Original + Privacy Suite)</h2>
+            <div class="test-grid">
+                <div class="test-item">
+                    <h3>🎯 Enhanced Tracker Detection</h3>
+                    <span class="status working">WORKING</span>
+                    <p>Detects 30+ tracker networks</p>
+                    <p>Categories: Ads, Analytics, Social</p>
+                </div>
+                <div class="test-item">
+                    <h3>🛡️ URLhaus Malware Detection</h3>
+                    <span class="status working">WORKING</span>
+                    <p>2M+ malicious URLs database</p>
+                    <p>Auto-updates every 6 hours</p>
+                </div>
+                <div class="test-item">
+                    <h3>📊 Privacy Timeline</h3>
+                    <span class="status working">WORKING</span>
+                    <p>Real-time privacy erosion</p>
+                    <p>Visual timeline with events</p>
+                </div>
+                <div class="test-item">
+                    <h3>🔐 Fingerprint Protection</h3>
+                    <span class="status working">WORKING</span>
+                    <p>Canvas, WebGL, Audio detection</p>
+                    <p>Can spoof fingerprint data</p>
+                </div>
+                <div class="test-item">
+                    <h3>😂 Honest Site Reviews</h3>
+                    <span class="status working">WORKING</span>
+                    <p>Roasts based on real data</p>
+                    <p>Brutally honest with humor</p>
+                </div>
+                <div class="test-item">
+                    <h3>🎪 Silly Metrics</h3>
+                    <span class="status working">WORKING</span>
+                    <p>Creepiness Index</p>
+                    <p>Data Vampire Rating</p>
+                </div>
+                <div class="test-item">
+                    <h3>😊 Emoji Privacy Scores</h3>
+                    <span class="status working">WORKING</span>
+                    <p>Weather theme: ☀️ to 🌩️</p>
+                    <p>Multiple emoji themes</p>
+                </div>
+                <div class="test-item">
+                    <h3>🎰 Money Trail Game</h3>
+                    <span class="status working">WORKING</span>
+                    <p>Gamified revenue calculations</p>
+                    <p>Level up system</p>
+                </div>
+                <div class="test-item">
+                    <h3>✅ GDPR/CCPA Checker</h3>
+                    <span class="status working">WORKING</span>
+                    <p>Consent banner detection</p>
+                    <p>Dark pattern identification</p>
+                </div>
+                <div class="test-item">
+                    <h3>📈 Privacy Scorer</h3>
+                    <span class="status working">WORKING</span>
+                    <p>100-point scoring system</p>
+                    <p>Real-time updates</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🆕 Privacy Suite Features (New!)</h2>
+            <div class="test-grid">
+                <div class="test-item">
+                    <h3>🚫 Active Tracker Blocking</h3>
+                    <span class="status new">NEW</span>
+                    <p>Blocks ads and analytics</p>
+                    <p>Real-time protection</p>
+                </div>
+                <div class="test-item">
+                    <h3>🍪 Cookie Auto-Cleaner</h3>
+                    <span class="status new">NEW</span>
+                    <p>Deletes tracking cookies</p>
+                    <p>Keeps essential ones</p>
+                </div>
+                <div class="test-item">
+                    <h3>🔒 WebRTC Protection</h3>
+                    <span class="status new">NEW</span>
+                    <p>Prevents IP leaks</p>
+                    <p>Protects real location</p>
+                </div>
+                <div class="test-item">
+                    <h3>🎲 Fingerprint Poisoning</h3>
+                    <span class="status new">NEW</span>
+                    <p>Randomizes tracking data</p>
+                    <p>Confuses trackers</p>
+                </div>
+                <div class="test-item">
+                    <h3>🍪 Fun Cookie Banner</h3>
+                    <span class="status new">NEW</span>
+                    <p>Auto-shows with personality</p>
+                    <p>Roasts the website</p>
+                </div>
+                <div class="test-item">
+                    <h3>🌤️ Privacy Weather Report</h3>
+                    <span class="status new">NEW</span>
+                    <p>Weather-themed privacy status</p>
+                    <p>From sunny to stormy</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>🧪 Test Trackers (These will be detected!)</h2>
+            <div class="tracker-test">
+                <p>The following tracking scripts are intentionally included for testing:</p>
+                <ul>
+                    <li>Google Analytics simulation</li>
+                    <li>Facebook Pixel simulation</li>
+                    <li>Multiple tracking cookies</li>
+                </ul>
+                <p><strong>Expected behavior:</strong></p>
+                <ul>
+                    <li>Cookie banner should appear 2 seconds after page load</li>
+                    <li>Privacy Suite should show blocked trackers count</li>
+                    <li>Privacy score should decrease</li>
+                    <li>Roast feature should mention the trackers</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h2>💡 Value Propositions</h2>
+            <div class="test-grid">
+                <div class="test-item">
+                    <h3>For Privacy-Conscious Users</h3>
+                    <p>"See and block what tracks you"</p>
+                    <p>Active protection + education</p>
+                </div>
+                <div class="test-item">
+                    <h3>For Developers</h3>
+                    <p>"Debug privacy issues"</p>
+                    <p>Network analysis + compliance</p>
+                </div>
+                <div class="test-item">
+                    <h3>For Fun Seekers</h3>
+                    <p>"Roast websites for laughs"</p>
+                    <p>Gamification + entertainment</p>
+                </div>
+                <div class="test-item">
+                    <h3>For Educators</h3>
+                    <p>"Teach digital privacy"</p>
+                    <p>Visual learning + real examples</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Test tracking scripts (simulated) -->
+    <script>
+        // Simulate trackers for testing
+        console.log('🎯 [Test Page] Simulating trackers for Dr. DOM to detect...');
+        
+        // Set test cookies
+        document.cookie = "test_tracker=1; path=/";
+        document.cookie = "analytics_id=abc123; path=/";
+        document.cookie = "fb_pixel=xyz789; path=/";
+        document.cookie = "ad_network=test; path=/";
+        
+        // Simulate tracking requests
+        setTimeout(() => {
+            // These will be intercepted by the extension
+            const img = new Image();
+            img.src = 'https://www.google-analytics.com/test.gif';
+            
+            const script = document.createElement('script');
+            script.src = 'https://connect.facebook.net/test.js';
+        }, 1000);
+
+        // Log for debugging
+        console.log('🍪 [Test Page] Set test cookies:', document.cookie);
+        console.log('✅ [Test Page] Ready for Dr. DOM extension testing!');
+    </script>
+    
+    <!-- Load Test Runner -->
+    <script src="dist/chrome/test-runner.js"></script>
+</body>
+</html>

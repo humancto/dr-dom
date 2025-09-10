@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Dr. DOM Privacy Controls</title>
+  <link rel="stylesheet" href="privacy-controls.css">
+</head>
+<body>
+  <div class="privacy-container">
+    <header>
+      <h1>🛡️ Privacy Protection Suite</h1>
+      <button id="backToMain" class="btn-secondary">← Back to Main</button>
+    </header>
+
+    <div class="privacy-stats">
+      <div class="stat-card">
+        <div class="stat-value" id="trackersBlocked">0</div>
+        <div class="stat-label">Trackers Blocked</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="cookiesCleaned">0</div>
+        <div class="stat-label">Cookies Cleaned</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="dataValueSaved">$0.00</div>
+        <div class="stat-label">Data Value Saved</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value" id="privacyScore">100</div>
+        <div class="stat-label">Privacy Score</div>
+      </div>
+    </div>
+
+    <div class="privacy-toggles">
+      <h2>Protection Features</h2>
+      
+      <div class="toggle-item">
+        <label class="toggle-switch">
+          <input type="checkbox" id="trackerBlocking" checked>
+          <span class="toggle-slider"></span>
+        </label>
+        <div class="toggle-info">
+          <div class="toggle-title">🚫 Tracker Blocking</div>
+          <div class="toggle-desc">Block advertising and analytics trackers</div>
+        </div>
+      </div>
+
+      <div class="toggle-item">
+        <label class="toggle-switch">
+          <input type="checkbox" id="cookieCleaning" checked>
+          <span class="toggle-slider"></span>
+        </label>
+        <div class="toggle-info">
+          <div class="toggle-title">🍪 Cookie Auto-Cleaner</div>
+          <div class="toggle-desc">Automatically delete tracking cookies</div>
+        </div>
+      </div>
+
+      <div class="toggle-item">
+        <label class="toggle-switch">
+          <input type="checkbox" id="webrtcProtection" checked>
+          <span class="toggle-slider"></span>
+        </label>
+        <div class="toggle-info">
+          <div class="toggle-title">🔒 WebRTC Leak Protection</div>
+          <div class="toggle-desc">Prevent IP address leaks via WebRTC</div>
+        </div>
+      </div>
+
+      <div class="toggle-item">
+        <label class="toggle-switch">
+          <input type="checkbox" id="referrerSpoofing" checked>
+          <span class="toggle-slider"></span>
+        </label>
+        <div class="toggle-info">
+          <div class="toggle-title">🎭 Referrer Spoofing</div>
+          <div class="toggle-desc">Hide your browsing trail from websites</div>
+        </div>
+      </div>
+
+      <div class="toggle-item">
+        <label class="toggle-switch">
+          <input type="checkbox" id="fingerprintPoisoning" checked>
+          <span class="toggle-slider"></span>
+        </label>
+        <div class="toggle-info">
+          <div class="toggle-title">🎲 Fingerprint Poisoning</div>
+          <div class="toggle-desc">Randomize browser fingerprinting data</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="special-modes">
+      <h2>Special Modes</h2>
+      
+      <div class="mode-buttons">
+        <button id="kidsMode" class="mode-btn">
+          <span class="mode-icon">👶</span>
+          <span class="mode-name">Kids Mode</span>
+          <span class="mode-status">OFF</span>
+        </button>
+        
+        <button id="incognitoPlus" class="mode-btn">
+          <span class="mode-icon">🥷</span>
+          <span class="mode-name">Incognito++</span>
+          <span class="mode-status">OFF</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="fun-features">
+      <h2>Fun Features</h2>
+      
+      <div class="fun-buttons">
+        <button id="showRoast" class="fun-btn">
+          🔥 Roast This Site
+        </button>
+        
+        <button id="weatherReport" class="fun-btn">
+          🌤️ Privacy Weather
+        </button>
+        
+        <button id="dailyReport" class="fun-btn">
+          📊 Daily Report
+        </button>
+      </div>
+    </div>
+
+    <div id="roastModal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3>🔥 Website Roast</h3>
+        <div id="roastContent"></div>
+      </div>
+    </div>
+
+    <div id="weatherModal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3>🌤️ Privacy Weather Report</h3>
+        <div id="weatherContent"></div>
+      </div>
+    </div>
+
+    <div id="reportModal" class="modal hidden">
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <h3>📊 Daily Privacy Report</h3>
+        <div id="reportContent"></div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="privacy-controls.js"></script>
+</body>
+</html>
