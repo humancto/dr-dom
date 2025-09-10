@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Dr. DOM - Advanced Browser Inspector",
-  "version": "1.0.0",
-  "description": "Professional DOM inspection, network monitoring, error tracking, and performance analysis for any website",
+  "name": "Dr. DOM - Privacy Extension That Actually Works",
+  "version": "2.0.0",
+  "description": "Real-time tracker detection with brutally honest site roasts. See what websites see, know what you're worth.",
   "permissions": [
     "activeTab",
     "background",

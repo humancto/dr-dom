@@ -60,7 +60,14 @@ Dr. DOM is a privacy-focused Chrome extension that detects trackers, analyzes co
 
 ## 📦 **Installation**
 
-### Quick Install
+### Option 1: Download Pre-built Release (Easiest)
+1. Download the latest release from [Releases page](https://github.com/humancto/dr-dom/releases)
+2. Unzip `dr-dom-extension-v2.0.0.zip`
+3. Open Chrome → `chrome://extensions/`
+4. Enable "Developer mode"
+5. Click "Load unpacked" → Select the unzipped folder
+
+### Option 2: Build from Source
 1. Clone the repository:
 ```bash
 git clone https://github.com/humancto/dr-dom.git
@@ -114,6 +121,38 @@ Visit these sites with Dr. DOM installed to see it in action:
 - **Chrome Storage API** for data persistence
 - **Real-time DOM monitoring** with MutationObserver
 - **Performance API** for timing metrics
+
+## 🚀 **Creating a Release** (For Maintainers)
+
+### Package the Extension
+```bash
+# Make the script executable (first time only)
+chmod +x package-extension.sh
+
+# Run the packaging script
+./package-extension.sh
+
+# This creates: dist/dr-dom-extension-v2.0.0.zip
+```
+
+### Create GitHub Release
+1. Package the extension using the script above
+2. Go to [GitHub Releases](https://github.com/humancto/dr-dom/releases/new)
+3. Click "Create a new release"
+4. Tag version: `v2.0.0`
+5. Release title: `Dr. DOM v2.0.0 - Privacy Extension`
+6. Upload the zip file from `dist/`
+7. Add release notes from RELEASES.md
+8. Publish release
+
+### Alternative Packaging Scripts
+```bash
+# With URLhaus database
+./scripts/package-with-database.sh
+
+# Using Node.js build system
+node build.js --package
+```
 
 ## 🤝 **Contributing**
 
