@@ -3,14 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. DOM - Advanced Web Privacy & Security Inspector</title>
-    <meta name="description" content="See what websites see. Know what you're worth. Take back control with Dr. DOM browser extension.">
+    <meta name="description" content="Dr. DOM - The privacy extension that actually works. Real-time tracker detection, honest site roasts, and live privacy scoring.">
+    <meta name="keywords" content="privacy, chrome extension, tracker blocker, cookie detection, web privacy, browser security">
+    <meta name="author" content="Dr. DOM Team">
     
-    <!-- Open Graph -->
-    <meta property="og:title" content="Dr. DOM - Advanced Web Privacy & Security Inspector">
-    <meta property="og:description" content="Reveals how much money websites make from your data. Real-time privacy scores, tracker detection, and security analysis.">
-    <meta property="og:image" content="https://yourdomain.com/assets/preview.png">
-    <meta property="og:url" content="https://yourdomain.com">
+    <!-- Open Graph / Social Media -->
+    <meta property="og:title" content="Dr. DOM - Privacy Extension">
+    <meta property="og:description" content="Real-time tracker detection with brutally honest site roasts. Because privacy shouldn't be boring.">
+    <meta property="og:image" content="https://humancto.github.io/dr-dom/assets/logo.svg">
+    <meta property="og:url" content="https://humancto.github.io/dr-dom">
+    <meta property="og:type" content="website">
+    
+    <title>Dr. DOM - The Privacy Extension That Actually Works</title>
     
     <style>
         * {
@@ -19,395 +23,485 @@
             box-sizing: border-box;
         }
         
+        :root {
+            --primary: #667eea;
+            --secondary: #764ba2;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --dark: #1e293b;
+            --light: #f8fafc;
+            --gradient: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             line-height: 1.6;
-            color: #1f2937;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            margin: 0;
+            color: var(--dark);
+            background: var(--light);
             overflow-x: hidden;
-        }
-        
-        .logo-container {
-            display: inline-block;
-            margin-bottom: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
         }
         
         /* Hero Section */
         .hero {
-            padding: 80px 0;
-            text-align: center;
-            color: white;
+            min-height: 100vh;
+            background: var(--gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
         }
         
-        .hero h1 {
-            font-size: 3.5rem;
-            margin-bottom: 20px;
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320"><path fill="%23ffffff20" d="M0,96L48,112C96,128,192,160,288,160C384,160,480,128,576,133.3C672,139,768,181,864,181.3C960,181,1056,139,1152,122.7C1248,107,1344,117,1392,122.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>') no-repeat bottom;
+            background-size: cover;
+            opacity: 0.2;
+        }
+        
+        .hero-content {
+            text-align: center;
+            color: white;
+            z-index: 1;
+            padding: 2rem;
+            max-width: 800px;
+            animation: fadeInUp 1s ease;
+        }
+        
+        .logo {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto 2rem;
+            background: white;
+            border-radius: 30px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        .logo img {
+            width: 100%;
+            height: 100%;
+        }
+        
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
         
-        .hero .tagline {
-            font-size: 1.5rem;
-            margin-bottom: 40px;
+        .tagline {
+            font-size: 1.3rem;
+            margin-bottom: 2rem;
             opacity: 0.95;
         }
         
         .cta-buttons {
             display: flex;
-            gap: 20px;
+            gap: 1rem;
             justify-content: center;
             flex-wrap: wrap;
+            margin-bottom: 3rem;
         }
         
         .btn {
-            padding: 15px 30px;
-            font-size: 1.1rem;
-            border-radius: 8px;
+            padding: 1rem 2rem;
+            border-radius: 50px;
             text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            transition: transform 0.2s, box-shadow 0.2s;
-            font-weight: 600;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            gap: 0.5rem;
+            font-size: 1.1rem;
         }
         
         .btn-primary {
             background: white;
-            color: #764ba2;
+            color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(0,0,0,0.3);
         }
         
         .btn-secondary {
-            background: transparent;
+            background: rgba(255,255,255,0.2);
             color: white;
             border: 2px solid white;
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
         }
         
         /* Features Grid */
         .features {
+            padding: 5rem 2rem;
             background: white;
-            padding: 80px 0;
-            border-radius: 30px 30px 0 0;
-            margin-top: -30px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            background: var(--gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.2rem;
+            color: #64748b;
+            margin-bottom: 3rem;
         }
         
         .features-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-            margin-top: 50px;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
         }
         
         .feature-card {
-            background: #f9fafb;
-            padding: 30px;
-            border-radius: 12px;
-            border: 1px solid #e5e7eb;
-            transition: transform 0.2s, box-shadow 0.2s;
+            background: var(--light);
+            padding: 2rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
         }
         
         .feature-card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-color: var(--primary);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.1);
         }
         
         .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 15px;
+            font-size: 3rem;
+            margin-bottom: 1rem;
         }
         
         .feature-title {
             font-size: 1.3rem;
-            margin-bottom: 10px;
-            color: #1f2937;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: var(--dark);
         }
         
         .feature-description {
-            color: #6b7280;
+            color: #64748b;
             line-height: 1.6;
         }
         
-        .feature-highlight {
-            display: inline-block;
-            background: #fef3c7;
-            color: #92400e;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.9rem;
-            margin-top: 10px;
+        /* Live Demo Section */
+        .demo {
+            background: var(--gradient);
+            padding: 5rem 2rem;
+            color: white;
         }
         
-        /* Money Demo */
-        .money-demo {
-            background: linear-gradient(135deg, #10b981, #059669);
-            padding: 40px;
-            border-radius: 12px;
-            margin: 50px 0;
-            color: white;
+        .demo-container {
+            max-width: 900px;
+            margin: 0 auto;
             text-align: center;
         }
         
-        .money-amount {
-            font-size: 4rem;
-            font-weight: bold;
-            margin: 20px 0;
-        }
-        
-        .money-breakdown {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 20px;
-            flex-wrap: wrap;
-        }
-        
-        .money-item {
-            text-align: center;
-        }
-        
-        .money-label {
-            font-size: 0.9rem;
-            opacity: 0.9;
-        }
-        
-        .money-value {
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-        
-        /* Privacy Score */
-        .privacy-score-demo {
-            background: #f3f4f6;
-            padding: 40px;
-            border-radius: 12px;
-            margin: 50px 0;
-        }
-        
-        .score-display {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-        
-        .score-circle {
-            width: 150px;
-            height: 150px;
-            border-radius: 50%;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .score-grade {
-            font-size: 3rem;
-        }
-        
-        .score-label {
-            font-size: 1rem;
-            opacity: 0.9;
-        }
-        
-        .grade-a { background: linear-gradient(135deg, #10b981, #059669); }
-        .grade-b { background: linear-gradient(135deg, #84cc16, #65a30d); }
-        .grade-c { background: linear-gradient(135deg, #eab308, #ca8a04); }
-        .grade-d { background: linear-gradient(135deg, #f59e0b, #d97706); }
-        .grade-f { background: linear-gradient(135deg, #ef4444, #dc2626); }
-        
-        /* How It Works */
-        .how-it-works {
-            padding: 80px 0;
-        }
-        
-        .steps {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-        
-        .step {
-            text-align: center;
-        }
-        
-        .step-number {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            font-weight: bold;
-            margin: 0 auto 20px;
-        }
-        
-        /* Stats */
-        .stats {
-            background: #1f2937;
-            color: white;
-            padding: 60px 0;
-            border-radius: 12px;
-            margin: 50px 0;
+        .demo-widget {
+            background: rgba(17, 24, 39, 0.95);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-            text-align: center;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-item {
+            background: rgba(255,255,255,0.1);
+            padding: 1rem;
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .stat-item:hover {
+            background: rgba(255,255,255,0.15);
+            transform: scale(1.05);
+        }
+        
+        .stat-emoji {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
         }
         
         .stat-number {
-            font-size: 2.5rem;
+            font-size: 1.5rem;
             font-weight: bold;
-            color: #fbbf24;
+            color: var(--warning);
         }
         
         .stat-label {
-            margin-top: 10px;
-            opacity: 0.9;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .privacy-score {
+            background: rgba(255,255,255,0.1);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-top: 1rem;
+        }
+        
+        .score-number {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .score-bar {
+            height: 10px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 1rem;
+        }
+        
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+            width: 35%;
+            transition: width 1s ease;
+            animation: pulse 2s infinite;
+        }
+        
+        /* Roast Examples */
+        .roasts {
+            padding: 5rem 2rem;
+            background: #f8fafc;
+        }
+        
+        .roast-card {
+            background: white;
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 1rem auto;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border-left: 5px solid var(--danger);
+        }
+        
+        .roast-emoji {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+        
+        .roast-text {
+            font-size: 1.2rem;
+            font-style: italic;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+        
+        .roast-context {
+            color: #64748b;
+            font-size: 0.9rem;
+        }
+        
+        /* Installation */
+        .install {
+            padding: 5rem 2rem;
+            background: white;
+        }
+        
+        .install-steps {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .step {
+            display: flex;
+            align-items: start;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: var(--light);
+            border-radius: 15px;
+            transition: all 0.3s ease;
+        }
+        
+        .step:hover {
+            transform: translateX(10px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.1);
+        }
+        
+        .step-number {
+            background: var(--gradient);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .step-content h3 {
+            margin-bottom: 0.5rem;
+            color: var(--dark);
+        }
+        
+        .step-content p {
+            color: #64748b;
+        }
+        
+        .code-block {
+            background: var(--dark);
+            color: var(--light);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-top: 0.5rem;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
         }
         
         /* Footer */
         footer {
-            background: #111827;
+            background: var(--dark);
             color: white;
-            padding: 40px 0;
+            padding: 3rem 2rem;
             text-align: center;
         }
         
         .footer-links {
             display: flex;
+            gap: 2rem;
             justify-content: center;
-            gap: 30px;
-            margin-top: 20px;
+            margin-bottom: 2rem;
             flex-wrap: wrap;
         }
         
         .footer-links a {
-            color: #9ca3af;
+            color: white;
             text-decoration: none;
-            transition: color 0.2s;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
         }
         
         .footer-links a:hover {
-            color: white;
+            opacity: 1;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+        
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.8;
+            }
         }
         
         /* Responsive */
         @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2.5rem;
+            h1 {
+                font-size: 2rem;
             }
             
-            .hero .tagline {
-                font-size: 1.2rem;
+            .tagline {
+                font-size: 1.1rem;
             }
             
-            .features-grid {
+            .cta-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn {
+                width: 100%;
+                max-width: 300px;
+                justify-content: center;
+            }
+            
+            .stats-grid {
                 grid-template-columns: 1fr;
             }
-            
-            .money-amount {
-                font-size: 3rem;
-            }
-        }
-        
-        /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .floating {
-            animation: float 3s ease-in-out infinite;
         }
     </style>
 </head>
 <body>
     <!-- Hero Section -->
     <section class="hero">
-        <div class="container">
-            <div class="logo-container floating">
-                <svg width="120" height="120" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                    <defs>
-                        <linearGradient id="heroGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                            <stop offset="0%" style="stop-color:#ffffff;stop-opacity:1" />
-                            <stop offset="100%" style="stop-color:#e0e7ff;stop-opacity:1" />
-                        </linearGradient>
-                        <filter id="heroShadow">
-                            <feDropShadow dx="0" dy="4" stdDeviation="12" flood-opacity="0.15"/>
-                        </filter>
-                    </defs>
-                    <circle cx="256" cy="256" r="240" fill="url(#heroGradient)" filter="url(#heroShadow)"/>
-                    <g transform="translate(256, 256)">
-                        <circle cx="-30" cy="-30" r="80" fill="none" stroke="#667eea" stroke-width="16" opacity="0.9"/>
-                        <path d="M -90,-60 Q -60,-90 -30,-60" fill="none" stroke="#a78bfa" stroke-width="8" stroke-linecap="round" opacity="0.5"/>
-                        <line x1="30" y1="30" x2="90" y2="90" stroke="#667eea" stroke-width="20" stroke-linecap="round"/>
-                        <g transform="translate(-30, -30)">
-                            <path d="M 0,-25 L 20,-15 L 20,15 L 0,25 L -20,15 L -20,-15 Z" fill="#10b981" opacity="0.9"/>
-                            <rect x="-8" y="-2" width="16" height="12" rx="2" fill="white"/>
-                            <circle cx="0" cy="4" r="2" fill="#059669"/>
-                        </g>
-                        <text x="50" y="-50" font-family="system-ui" font-size="40" font-weight="bold" fill="#10b981">$</text>
-                    </g>
-                </svg>
+        <div class="hero-content">
+            <div class="logo">
+                <img src="assets/logo.svg" alt="Dr. DOM Logo">
             </div>
             <h1>Dr. DOM</h1>
-            <p class="tagline">See what websites see. Know what you're worth. Take back control.</p>
-            
+            <p class="tagline">The Privacy Extension That Actually Works</p>
+            <p style="font-size: 1.1rem; margin-bottom: 2rem; opacity: 0.9;">
+                🕵️ Real-time tracker detection • 🔥 Honest site roasts • 🎯 Live privacy scoring
+            </p>
             <div class="cta-buttons">
-                <a href="https://chrome.google.com/webstore" class="btn btn-primary">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
-                        <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm-.885 4.261c1.134-.145 2.277.014 3.315.441a7.473 7.473 0 0 1 2.651 2.106l-3.115 5.396a3.234 3.234 0 0 0-3.135-2.442h-.004L7.52 4.711A7.445 7.445 0 0 1 11.115 4.261zM4.594 7.79l3.115 5.396a3.234 3.234 0 0 0 1.17 3.884l-3.115 5.396A7.494 7.494 0 0 1 2.06 15.09a7.502 7.502 0 0 1 2.534-7.3zm14.812 0a7.44 7.44 0 0 1 0 8.42l-3.115-5.396c.003-.012.009-.022.012-.034a3.236 3.236 0 0 0-1.17-3.884l3.115-5.396a7.473 7.473 0 0 1 1.158 6.29zm-7.42 11.949a7.454 7.454 0 0 1-3.891-.469l3.115-5.396a3.236 3.236 0 0 0 3.891 0l3.115 5.396a7.494 7.494 0 0 1-6.23.469z"/>
-                    </svg>
-                    Install for Chrome
+                <a href="#install" class="btn btn-primary">
+                    <span>🚀</span> Install Extension
                 </a>
                 <a href="https://github.com/humancto/dr-dom" class="btn btn-secondary">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="margin-right: 8px;">
-                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/>
-                    </svg>
-                    View on GitHub
+                    <span>📦</span> View on GitHub
                 </a>
             </div>
-            
-            <!-- Trust Badges -->
-            <div style="margin-top: 40px; display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; opacity: 0.9;">
-                <div style="text-align: center;">
-                    <div style="font-size: 2rem;">🔒</div>
-                    <div style="font-size: 0.9rem;">100% Private</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 2rem;">🆓</div>
-                    <div style="font-size: 0.9rem;">Always Free</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 2rem;">⚡</div>
-                    <div style="font-size: 0.9rem;">Real-time</div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 2rem;">🌍</div>
-                    <div style="font-size: 0.9rem;">Open Source</div>
-                </div>
+            <div style="margin-top: 2rem; opacity: 0.8;">
+                <p>⚡ Lightweight • 🔒 No external APIs • 🎮 Actually fun to use</p>
             </div>
         </div>
     </section>
@@ -415,241 +509,187 @@
     <!-- Features Section -->
     <section class="features">
         <div class="container">
-            <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 20px;">
-                🛡️ Complete Privacy & Security Analysis
-            </h2>
-            <p style="text-align: center; color: #6b7280; font-size: 1.2rem;">
-                Every feature you need to understand and protect your digital privacy
-            </p>
+            <h2 class="section-title">Features That Actually Work</h2>
+            <p class="section-subtitle">100% real data, 0% BS, with a touch of humor</p>
             
-            <!-- Demo Screenshot Section -->
-            <div style="background: linear-gradient(135deg, #1e293b, #334155); padding: 60px 40px; border-radius: 20px; margin: 50px 0; box-shadow: 0 20px 60px rgba(0,0,0,0.2);">
-                <h3 style="color: white; text-align: center; font-size: 2rem; margin-bottom: 30px;">
-                    🖥️ See Dr. DOM in Action
-                </h3>
-                
-                <!-- Mock Browser Window -->
-                <div style="background: #1f2937; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
-                    <!-- Browser Top Bar -->
-                    <div style="background: #374151; padding: 10px 15px; display: flex; align-items: center; gap: 10px;">
-                        <div style="display: flex; gap: 8px;">
-                            <div style="width: 12px; height: 12px; background: #ef4444; border-radius: 50%;"></div>
-                            <div style="width: 12px; height: 12px; background: #f59e0b; border-radius: 50%;"></div>
-                            <div style="width: 12px; height: 12px; background: #10b981; border-radius: 50%;"></div>
-                        </div>
-                        <div style="flex: 1; background: #1f2937; padding: 6px 12px; border-radius: 6px; color: #9ca3af; font-size: 13px;">
-                            https://example-news-site.com
-                        </div>
-                        <div style="background: #667eea; padding: 4px 8px; border-radius: 4px; color: white; font-size: 11px; font-weight: bold;">
-                            Dr. DOM Active
-                        </div>
-                    </div>
-                    
-                    <!-- Extension Popup Mock -->
-                    <div style="padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                        <!-- Left: Privacy Score -->
-                        <div style="background: white; padding: 20px; border-radius: 12px;">
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px;">
-                                <h4 style="margin: 0; color: #1f2937;">Privacy Score</h4>
-                                <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #ef4444, #dc2626); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: bold;">
-                                    F
-                                </div>
-                            </div>
-                            <div style="font-size: 14px; color: #6b7280; line-height: 1.6;">
-                                <div style="margin-bottom: 8px;">🔴 42 Trackers Detected</div>
-                                <div style="margin-bottom: 8px;">🍪 127 Tracking Cookies</div>
-                                <div style="margin-bottom: 8px;">📊 Google Analytics Active</div>
-                                <div>👁️ Facebook Pixel Tracking</div>
-                            </div>
-                        </div>
-                        
-                        <!-- Right: Money Trail -->
-                        <div style="background: linear-gradient(135deg, #10b981, #059669); padding: 20px; border-radius: 12px; color: white;">
-                            <h4 style="margin: 0 0 15px 0;">Money Trail</h4>
-                            <div style="font-size: 32px; font-weight: bold; margin-bottom: 10px;">$1.47</div>
-                            <div style="font-size: 13px; opacity: 0.9; margin-bottom: 15px;">Made from your 5-minute visit</div>
-                            <div style="font-size: 12px; line-height: 1.6;">
-                                <div>📺 Ads: $0.85</div>
-                                <div>📊 Your Data: $0.42</div>
-                                <div>🎯 Trackers: $0.20</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Money Demo -->
-            <div class="money-demo">
-                <h3 style="font-size: 1.8rem;">💰 Real Example: News Website Revenue</h3>
-                <div class="money-amount">$0.47</div>
-                <p>From your visit right now</p>
-                <div class="money-breakdown">
-                    <div class="money-item">
-                        <div class="money-value">$0.25</div>
-                        <div class="money-label">Ad Revenue</div>
-                    </div>
-                    <div class="money-item">
-                        <div class="money-value">$0.15</div>
-                        <div class="money-label">Your Data</div>
-                    </div>
-                    <div class="money-item">
-                        <div class="money-value">$0.07</div>
-                        <div class="money-label">Trackers</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Features Grid -->
             <div class="features-grid">
                 <div class="feature-card">
-                    <div class="feature-icon">💵</div>
-                    <h3 class="feature-title">Money Trail</h3>
+                    <div class="feature-icon">🎯</div>
+                    <h3 class="feature-title">Live Tracker Display</h3>
                     <p class="feature-description">
-                        See exactly how much money websites make from your visit. Real-time calculations based on 2024 industry CPM rates.
+                        Real-time widget showing cookies, trackers, and pixels as they load. 
+                        Watch your privacy score drop in real-time!
                     </p>
-                    <span class="feature-highlight">$700/year per US user</span>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🔥</div>
+                    <h3 class="feature-title">Honest Site Roasts</h3>
+                    <p class="feature-description">
+                        Brutally honest feedback based on actual privacy practices. 
+                        50+ cookies? "That's not a website, it's a bakery!"
+                    </p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">🌤️</div>
+                    <h3 class="feature-title">Privacy Weather Report</h3>
+                    <p class="feature-description">
+                        From "Clear Privacy Skies" ☀️ to "CATASTROPHIC DATA LEAKAGE" ⛈️. 
+                        Check the forecast before browsing!
+                    </p>
                 </div>
                 
                 <div class="feature-card">
                     <div class="feature-icon">🛡️</div>
-                    <h3 class="feature-title">Privacy Score (A-F)</h3>
+                    <h3 class="feature-title">Advanced Detection</h3>
                     <p class="feature-description">
-                        Transparent 100-point scoring system. Detects 5,000+ tracker patterns from EasyList & EasyPrivacy.
+                        Detects 30+ tracker networks, fingerprinting attempts, 
+                        malware, and GDPR compliance issues.
                     </p>
-                    <span class="feature-highlight">Real-time grades</span>
                 </div>
                 
                 <div class="feature-card">
-                    <div class="feature-icon">🌐</div>
-                    <h3 class="feature-title">Domain Intelligence</h3>
+                    <div class="feature-icon">🎭</div>
+                    <h3 class="feature-title">Fun Privacy Banner</h3>
                     <p class="feature-description">
-                        DNS analysis reveals hosting, email security, domain age, and trust scores using free DoH APIs.
+                        Humorous messages about blocking trackers. 
+                        "Caught 47 trackers red-handed trying to follow you!"
                     </p>
-                    <span class="feature-highlight">No API key needed</span>
                 </div>
                 
                 <div class="feature-card">
-                    <div class="feature-icon">🎣</div>
-                    <h3 class="feature-title">Phishing Detection</h3>
+                    <div class="feature-icon">📊</div>
+                    <h3 class="feature-title">Trust Score System</h3>
                     <p class="feature-description">
-                        Typosquatting detection catches fake sites like "amaz0n.com". Checks against URLhaus malware database.
+                        100-point scoring with transparent algorithm. 
+                        Real penalties for real privacy violations.
                     </p>
-                    <span class="feature-highlight">Real-time warnings</span>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">🎯</div>
-                    <h3 class="feature-title">Tracker Detection</h3>
-                    <p class="feature-description">
-                        Identifies Google Analytics, Facebook Pixel, Hotjar, and 50+ tracking technologies in real-time.
-                    </p>
-                    <span class="feature-highlight">5,000+ patterns</span>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">⚖️</div>
-                    <h3 class="feature-title">GDPR/CCPA Checker</h3>
-                    <p class="feature-description">
-                        Verifies cookie consent, "Do Not Sell" links, and legal compliance for EU and California laws.
-                    </p>
-                    <span class="feature-highlight">Auto-compliance check</span>
                 </div>
             </div>
+        </div>
+    </section>
+    
+    <!-- Live Demo Section -->
+    <section class="demo">
+        <div class="demo-container">
+            <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">See It In Action</h2>
+            <p style="font-size: 1.2rem; opacity: 0.9; margin-bottom: 2rem;">
+                This is what you'll see on every website you visit
+            </p>
             
-            <!-- Privacy Score Demo -->
-            <div class="privacy-score-demo">
-                <h3 style="text-align: center; font-size: 1.8rem; margin-bottom: 30px;">
-                    📊 Live Privacy Scores
+            <div class="demo-widget">
+                <h3 style="margin-bottom: 1.5rem; font-size: 1.2rem;">
+                    🔍 Dr. DOM Live Tracker
                 </h3>
-                <div class="score-display">
-                    <div class="score-circle grade-a">
-                        <div class="score-grade">A</div>
-                        <div class="score-label">90-100</div>
+                
+                <div class="stats-grid">
+                    <div class="stat-item">
+                        <div class="stat-emoji">🍪</div>
+                        <div class="stat-number">47</div>
+                        <div class="stat-label">Cookies</div>
                     </div>
-                    <div class="score-circle grade-b">
-                        <div class="score-grade">B</div>
-                        <div class="score-label">80-89</div>
+                    <div class="stat-item">
+                        <div class="stat-emoji">🎯</div>
+                        <div class="stat-number">23</div>
+                        <div class="stat-label">Trackers</div>
                     </div>
-                    <div class="score-circle grade-c">
-                        <div class="score-grade">C</div>
-                        <div class="score-label">70-79</div>
+                    <div class="stat-item">
+                        <div class="stat-emoji">👁️</div>
+                        <div class="stat-number">8</div>
+                        <div class="stat-label">Pixels</div>
                     </div>
-                    <div class="score-circle grade-d">
-                        <div class="score-grade">D</div>
-                        <div class="score-label">60-69</div>
+                </div>
+                
+                <div class="privacy-score">
+                    <div style="margin-bottom: 0.5rem; opacity: 0.8;">Privacy Score</div>
+                    <div class="score-number">35/100</div>
+                    <div class="score-bar">
+                        <div class="score-fill"></div>
                     </div>
-                    <div class="score-circle grade-f">
-                        <div class="score-grade">F</div>
-                        <div class="score-label">0-59</div>
+                    <div style="margin-top: 1rem; font-size: 0.9rem; opacity: 0.7;">
+                        ⚠️ High tracking activity detected
                     </div>
                 </div>
             </div>
+        </div>
+    </section>
+    
+    <!-- Roast Examples -->
+    <section class="roasts">
+        <div class="container">
+            <h2 class="section-title">Brutally Honest Roasts</h2>
+            <p class="section-subtitle">Real feedback from actual site analysis</p>
             
-            <!-- How It Works -->
-            <div class="how-it-works">
-                <h2 style="text-align: center; font-size: 2rem; margin-bottom: 20px;">
-                    🚀 How It Works
-                </h2>
-                <div class="steps">
-                    <div class="step">
-                        <div class="step-number">1</div>
-                        <h4>Install Extension</h4>
-                        <p>Add to Chrome in one click</p>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">2</div>
-                        <h4>Browse Normally</h4>
-                        <p>Dr. DOM works automatically</p>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">3</div>
-                        <h4>See Everything</h4>
-                        <p>Click icon for full analysis</p>
-                    </div>
-                    <div class="step">
-                        <div class="step-number">4</div>
-                        <h4>Take Control</h4>
-                        <p>Block trackers, avoid threats</p>
-                    </div>
+            <div class="roast-card">
+                <div class="roast-emoji">🕵️</div>
+                <div class="roast-text">
+                    "67 trackers? This site has more stalkers than a celebrity!"
                 </div>
+                <div class="roast-context">When detecting excessive tracking</div>
             </div>
             
-            <!-- Stats -->
-            <div class="stats">
-                <div class="container">
-                    <div class="stats-grid">
-                        <div>
-                            <div class="stat-number">5,000+</div>
-                            <div class="stat-label">Tracker Patterns</div>
-                        </div>
-                        <div>
-                            <div class="stat-number">100+</div>
-                            <div class="stat-label">Malware Signatures</div>
-                        </div>
-                        <div>
-                            <div class="stat-number">$0</div>
-                            <div class="stat-label">Cost to You</div>
-                        </div>
-                        <div>
-                            <div class="stat-number">100%</div>
-                            <div class="stat-label">Open Source</div>
+            <div class="roast-card">
+                <div class="roast-emoji">🔓</div>
+                <div class="roast-text">
+                    "Still using HTTP in 2024? That's like leaving your door open with a 'Rob Me' sign!"
+                </div>
+                <div class="roast-context">When site doesn't use HTTPS</div>
+            </div>
+            
+            <div class="roast-card">
+                <div class="roast-emoji">🍪</div>
+                <div class="roast-text">
+                    "89 cookies? Is this a website or a bakery? Gordon Ramsay would be disgusted!"
+                </div>
+                <div class="roast-context">When too many cookies are detected</div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Installation Section -->
+    <section class="install" id="install">
+        <div class="container">
+            <h2 class="section-title">Get Started in 2 Minutes</h2>
+            <p class="section-subtitle">No signup, no API keys, just install and go</p>
+            
+            <div class="install-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Clone the Repository</h3>
+                        <p>Get the code from GitHub</p>
+                        <div class="code-block">
+                            git clone https://github.com/humancto/dr-dom.git
                         </div>
                     </div>
                 </div>
-            </div>
-            
-            <!-- Final CTA -->
-            <div style="text-align: center; margin-top: 60px;">
-                <h2 style="font-size: 2rem; margin-bottom: 20px;">
-                    🛡️ Your Privacy Matters
-                </h2>
-                <p style="color: #6b7280; font-size: 1.2rem; margin-bottom: 30px;">
-                    Take back control with Dr. DOM - Always free, always private
-                </p>
-                <div class="cta-buttons">
-                    <a href="https://chrome.google.com/webstore" class="btn btn-primary" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
-                        Install Now - It's Free
-                    </a>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Open Chrome Extensions</h3>
+                        <p>Navigate to Chrome's extension settings</p>
+                        <div class="code-block">
+                            chrome://extensions/
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Load Extension</h3>
+                        <p>Enable "Developer mode" → Click "Load unpacked" → Select the <code>dist/chrome</code> folder</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">✨</div>
+                    <div class="step-content">
+                        <h3>You're Protected!</h3>
+                        <p>Visit any website and watch Dr. DOM expose their privacy practices</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -657,19 +697,57 @@
     
     <!-- Footer -->
     <footer>
-        <div class="container">
-            <p style="font-size: 1.5rem; margin-bottom: 10px;">🔍 Dr. DOM</p>
-            <p style="color: #9ca3af;">Advanced Web Privacy & Security Inspector</p>
-            <div class="footer-links">
-                <a href="https://github.com/humancto/dr-dom">GitHub</a>
-                <a href="https://github.com/humancto/dr-dom/issues">Report Issue</a>
-                <a href="https://github.com/humancto/dr-dom/blob/main/LICENSE">MIT License</a>
-                <a href="mailto:drdom@yourdomain.com">Contact</a>
-            </div>
-            <p style="margin-top: 30px; color: #6b7280; font-size: 0.9rem;">
-                © 2024 Dr. DOM. All analysis happens locally. We don't track you.
-            </p>
+        <div class="footer-links">
+            <a href="https://github.com/humancto/dr-dom">GitHub</a>
+            <a href="https://github.com/humancto/dr-dom/issues">Report Issues</a>
+            <a href="https://github.com/humancto/dr-dom/discussions">Discussions</a>
+            <a href="https://github.com/humancto/dr-dom/blob/main/LICENSE">License</a>
         </div>
+        <p style="opacity: 0.8; margin-bottom: 1rem;">
+            Made with ❤️ and a healthy dose of skepticism about web privacy
+        </p>
+        <p style="font-size: 0.9rem; opacity: 0.6;">
+            © 2024 Dr. DOM - Because your privacy shouldn't be a joke, but learning about it can be fun!
+        </p>
     </footer>
+    
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+        
+        // Animate score bar on scroll
+        const scoreBar = document.querySelector('.score-fill');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    setTimeout(() => {
+                        scoreBar.style.width = '35%';
+                    }, 500);
+                }
+            });
+        });
+        
+        if (scoreBar) {
+            observer.observe(scoreBar);
+        }
+        
+        // Add floating animation to feature cards on hover
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.addEventListener('mouseenter', () => {
+                card.style.animation = 'float 2s ease-in-out infinite';
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.animation = '';
+            });
+        });
+    </script>
 </body>
 </html>
